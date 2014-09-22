@@ -1,0 +1,27 @@
+<div class="masthead">
+  <div class="container">
+    <p>Hi <%= user.firstName %></p> 
+    <div class="row padform">
+      <div class="col-sm-2 col-sm-offset-2">
+        <h4><small>Your account is now active. Get started by setting a password.</small></h4>
+      </div>
+      <div class="col-sm-6">
+        <form method="post" action="/user/setup" role="form">
+          <div class="login-form">
+	    <div class="form-group">
+              <input type="password" class="form-control login-field" value="" placeholder="Password" name="pass" />
+              <label class="login-field-icon fui-lock" for="pass"></label>
+	    </div>
+	    <div class="form-group">
+              <input type="password" class="form-control login-field" value="" placeholder="Confirm password" name="passconf" />
+              <label class="login-field-icon fui-lock" for="passconf"></label>
+	    </div>
+	    <input type="hidden" value=<%= user.email %> name="email" />
+            <button type="submit" class="btn btn-primary btn-lg btn-block">Set password</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>

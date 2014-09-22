@@ -1,0 +1,123 @@
+
+
+<div class="container content-top">
+  <div class="col-sm-6 col-sm-offset-4">
+
+    <form method="post" action="/user/update" role="form">
+      <div class="login-form">
+
+<h3><%= messages %></h3>
+
+<h5>Public profile</h5>
+
+        <div class="row">
+          <div class="col-xs-6">
+            <div class="form-group">
+              <input type="text" class="form-control login-field" value="<%= user.firstName %>" placeholder="First name" name="firstName" />
+            </div>
+          </div>
+          <div class="col-xs-6">
+            <div class="form-group">
+              <input type="text" class="form-control login-field" value="<%= user.lastName %>" placeholder="Last name" name="lastName" />
+              <label class="login-field-icon fui-user" for="name"></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <input type="text" class="form-control login-field" value="<%= user.email %>" placeholder="Email" name="email" />
+          <label class="login-field-icon fui-mail" for="email"></label>
+        </div>
+
+<h5>Update password</h5>
+
+	<div class="form-group">
+	  <input type="password" class="form-control login-field" value="" placeholder="Old password" name="oldpass" />
+	  <label class="login-field-icon fui-lock" for="pass"></label>
+        </div>
+
+	<div class="form-group">
+	  <input type="password" class="form-control login-field" value="" placeholder="New Password" name="pass" />
+	  <label class="login-field-icon fui-lock" for="pass"></label>
+        </div>
+
+	<div class="form-group">
+	  <input type="password" class="form-control login-field" value="" placeholder="Confirm" name="passconf" />
+	  <label class="login-field-icon fui-lock" for="passconf"></label>
+        </div>	
+
+<h5>Tutor profile</h5>
+
+	<div class="row">
+	  <label for="tutor" class="col-xs-2">Tutor</label>
+	  <div class="col-xs-4">
+	      <div class="switch-pad">
+		<div class="switch switch-square"
+		     data-on-label="<i class='fui-check'></i>"
+		     data-off-label="<i class='fui-cross'></i>">
+		  <input type="hidden" id="tutorHidden" value="false" name="tutor" />
+		  <input type="checkbox" id="tutor" value="true" name="tutor" />
+		</div>
+	      </div>
+	  </div>
+	  <div class="col-xs-6">
+            <div class="form-group">
+	      <div class="input-group">
+		<span class="input-group-addon">$</span>
+		<input type="number" class="form-control login-field" value="<%= user.rate %>" placeholder="Rate" name="rate">
+		<span class="input-group-addon">/hr</span>
+	      </div>
+
+            </div>
+	  </div>
+	</div>
+
+        <div class="row">
+          <label for="tagsinput" class="col-xs-2">Subjects</label>
+          <div class="col-xs-10">
+            <input name="tagsinput" id="tagsinput" class="tagsinput" value="<% for(var i=0; i<user.subjects.length; i++) { %><%= user.subjects[i].name %>,<% } %>" style="display: none;">
+          </div>
+        </div>
+
+
+        <button type="submit" class="btn btn-primary btn-lg btn-block">Update profile</button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<script>
+
+  var tutor = <%= user.tutor %>;
+
+  if(tutor) {
+  $("input[id='tutor']").prop('checked', true);
+  $("[name='rate']").prop('disabled', false);
+  } else {
+  $("input[id='tutor']").prop('checked', false);
+  $("[name='rate']").prop('disabled', true);
+  }
+
+$(document).ready(function() {
+
+  $("input[id='tutor']").on('change', function() {
+    if($("input[id='tutor']").prop('checked')) {
+      $("[name='rate']").prop('disabled', false);
+    } else {
+      $("[name='rate']").prop('disabled', true);
+    }
+  });
+
+  $("form").submit(function(event) {
+    if($("input[id='tutor']").prop('checked')){
+      $("input[id='tutorHidden']").prop('disabled', true);
+    } else {
+      $("input[id='tutor']").prop('disabled',true);
+    }
+  });
+
+});
+
+
+</script>
