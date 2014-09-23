@@ -1,5 +1,5 @@
 {
-  "name": "illuminate-db",
+  "name": "rostyr-db",
   "version": "0.0.1",
   "description": "Simple server-side JS order processing",
   "main": "web.js",
