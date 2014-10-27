@@ -1,77 +1,51 @@
+<!DOCTYPE html>
+
 <% if(!user) { %>
-    <div class="masthead">
-      <div class="container">
 
-	<div class="row padform">
-	  <div class="col-sm-2 col-sm-offset-2">
-	    <img src="/icon.png" alt="Welcome to Illuminate" />
-	    <h4><small>Welcome to Illuminate</small></h4>
-	  </div>
-	  <div class="col-sm-6">
-	    <form method="post" action="/user/create" role="form">
-              <div class="login-form">
-	      <div class="errors">
-		<% if (errors) { %>
-		   <% for(i = 1; i < errors.length; i++) { %>
-	              <p><%= errors[i] %></p>
-		   <% } %>
-		<% } %>
-	      </div>
-	      <div class="row">
-		<div class="col-xs-6">
-		  <div class="form-group">
-		    <input type="text" class="form-control login-field" value="" placeholder="First name" name="firstName" />
+<div class="masthead">
+  <div class="container">
+    <div class="row padform">
 
-		  </div>
-		</div>
-		<div class="col-xs-6">
-		  <div class="form-group">
-		    <input type="text" class="form-control login-field" value="" placeholder="Last name" name="lastName" />
-		    <label class="login-field-icon fui-user" for="name"></label>
-		  </div>
-		</div>
-	      </div>
-	      <div class="form-group">
-		<input type="text" class="form-control login-field" value="" placeholder="Email" name="email" />
-		<label class="login-field-icon fui-mail" for="email"></label>
-	      </div>
+      <div class="col-md-8">
+	<img class="center-block" src="/masthead.png" alt="Rostyr" />
+      </div>
 
-		<button type="submit" class="btn btn-primary btn-lg btn-block">Create an account</button>
-              </div>
-	    </form>
-	  </div>
-	</div>
+      <div class="col-md-4">
+	<form method="post" action="/user/create" role="form">
+          <div class="login-form">
 
+	    <h6 class="text-center">Full-featured trial</h6>
+	    <p class="text-center"><small>30 days free, unlimited users, no contract.</small></p>
+	    <div class="errors">
+	      <% if (errors) { %>
+	      <% for(i = 1; i < errors.length; i++) { %>
+	         <p><%= errors[i] %></p>
+		 <% } %>
+		 <% } %>
+	    </div>
+
+	    <div class="form-group">
+	      <input type="text" class="form-control login-field" value="" placeholder="First name" name="firstName" />
+	      <label class="login-field-icon fui-user" for="firstName"></label>
+	    </div>
+
+	    <div class="form-group">
+	      <input type="text" class="form-control login-field" value="" placeholder="Last name" name="lastName" />
+	      <label class="login-field-icon fui-user" for="lastName"></label>
+	    </div>
+
+	    <div class="form-group">
+	      <input type="text" class="form-control login-field" value="" placeholder="Email" name="email" />
+	      <label class="login-field-icon fui-mail" for="email"></label>
+	    </div>
+
+	    <button type="submit" class="btn btn-primary btn-lg btn-block">Start free trial</button>
+          </div>
+	</form>
       </div>
     </div>
 
+  </div>
+</div>
+
 <% } %>
-
-    <div class="container content-top">
-      <div class="row">
-	<% for(var i=0; i<tut.length; i++) { %>
-	   <div class="col-sm-6 col-md-4">
-
-	       <div class="thumbnail">
-		 <div class="caption">
-		   <h4><%= tut[i].firstName %> <%= tut[i].lastName %></h4>
-		   <p><%= tut[i].email %></p>
-		   <% if(tut[i].rate) { %><p>$<%= tut[i].rate %>/hr</p><% } %>
-		   <p>
-		     <% if(tut[i].subjects == undefined) {} else { %>
-		     <% for(var j=0; j<tut[i].subjects.length; j++) { %>
-			<% if(j+1 == tut[i].subjects.length) { %>			
-			<%= tut[i].subjects[j].name %>
-			<% } else { %>
-			<%= tut[i].subjects[j].name + ", " %>
-			<% } %>
-			<% } %>
-			<% } %>
-		   </p>
-		   <a href="/user?id=<%= tut[i].id %>" class="btn btn-block btn-lg btn-primary">See more</a>
-		 </div>
-	       </div>
-
-	   </div>
-	   <% } %>
-      </div>

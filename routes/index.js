@@ -2,9 +2,8 @@ var db = require('../models')
 
 exports.index = function(req, res) {
     db.User.findAll({
-	where: { active: true },
-	include: [db.Subject]
-    }).success(function(tutors) {
+	include: [db.Job]
+    }).success(function(jobs) {
 
 	var error = req.flash('error');
 
@@ -19,16 +18,15 @@ exports.index = function(req, res) {
 	}
 
 	res.render('index', {
-	    title: 'Illuminate Tutor', 
+	    title: 'Rostyr',
 	    user: req.user,
-	    tut: tutors, 
 	    errors: errArr, // need to sort this shit out
 	})
 
     }).error(function(err) {
 
 	console.log(err);
-	res.send("error retrieving tutors");
+	res.send("error retrieving jobs");
 
     });
 }

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+
+<% if(user.Staffs) { %>
+<div class="container content-top">
+  <h2>Staff</h2>
+  <table class="table table-striped">
+    <thead>
+      <th>First name</th>
+      <th>Last name</th>
+      <th>Position</th>
+      <th class="col-xs-1"></th>
+    </thead>
+    <tbody>
+      <% for(var i=0; i<user.Staffs.length; i++) {%>
+         <tr>
+           <td><%= user.Staffs[i].firstName %></td>
+	   <td><%= user.Staffs[i].lastName %></td>
+	   <% for (var j=0; j<user.Staffs[i].Positions.length; j++) { %>
+	      <td><%= user.Staffs[i].Positions[j].name %></td>
+	   <% } %>
+	   <td class="text-right">
+	     <a href="/staff/remove?id=<%= user.Staffs[i].id %>" class="btn-sm btn-danger">
+               <span class="fui-cross"></span>
+             </a>
+           </td>
+          </td>
+         </tr>
+         <% } %>
+  </table>
+</div>
+<% } %>
+<div class="container">
+  <div class="row">
+    <div class="col-sm-6">
+
+      <form class="form-horizontal" method="post" action="/staff/create" role="form">
+        <div class="login-form">
+
+          <% if(message) { %>
+          <%= message %>
+          <% } %>
+
+          <h5>Add staff</h5>
+
+          <div class="form-group">
+            <div class="col-sm-6">
+              <input type="text" class="form-control" placeholder="First name" name="firstName">
+            </div>
+
+            <div class="col-sm-6">
+              <input type="text" class="form-control" placeholder="Last name" name="lastName">
+            </div>
+          </div>
+
+	  <div class="form-group">
+	    <div class="col-xs-12">
+	      <input type="text" class="form-control" placeholder="Position" name="position">
+	    </div>
+	  </div>
+
+	  <div class="form-group">
+	    <div class="col-xs-12">
+	      <input type="text" class="form-control" placeholder="Email" name="email">
+	    </div>
+	  </div>
+
+	  <div class="form-group">
+	    <div class="col-xs-12">
+	      <div class="input-group">
+		<span class="input-group-addon">+64</span>
+		<input type="text" class="form-control" placeholder="Phone number" name="phone">
+	      </div>
+	    </div>
+	  </div>
+
+          <div class="form-group">
+            <div class="col-sm-6 col-sm-offset-3">
+              <button type="submit" class="btn btn-primary btn-lg btn-block">Add staff</button>
+            </div>
+          </div>
+
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+

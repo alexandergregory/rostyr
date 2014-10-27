@@ -37,25 +37,21 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/">Illuminate</a>
+
+          <a class="navbar-brand" href="<% if(!user) { %>/<% } else { %>/dash<% } %>">Rostyr</a>
+
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="navbar-collapse">
 
-	  <form role="search" class="navbar-form navbar-left">
-	    <div class="form-group">
-	      <input type="text" placeholder="e.g. PAPR 101" class="form-control">
-	    </div>
-	    <button class="btn btn-default" type="submit">Search papers</button>
-	  </form>
-
           <ul class="nav navbar-nav navbar-right">
 <% if(!user) { %>
             <li><a href="/login">Log In</a></li>
 <% } else { %>
-            <li><a href="/dash">Dashboard</a></li>
-	    <li><a href="/user?id=<%= user.id %>"><%= user.firstName %></a></li>
+            <li><a href="/job">Jobs</a></li>
+	    <li><a href="/staff">Staff</a></li>
+            <li><a href="/account">Account</a></li>
             <li><a href="/logout">Logout</a></li>
 <% } %>
           </ul>

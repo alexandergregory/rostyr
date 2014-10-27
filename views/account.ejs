@@ -1,0 +1,52 @@
+<div class="container content-top">
+  <div class="col-sm-6 col-sm-offset-4">
+
+    <form method="post" action="/user/update" role="form">
+      <div class="login-form">
+
+<h3><%= message %></h3>
+
+<h5>Profile</h5>
+
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="form-group">
+              <input type="text" class="form-control login-field" value="<%= user.firstName %>" placeholder="First name" name="firstName" />
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="form-group">
+              <input type="text" class="form-control login-field" value="<%= user.lastName %>" placeholder="Last name" name="lastName" />
+              <label class="login-field-icon fui-user" for="name"></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <input type="text" class="form-control login-field" value="<%= user.email %>" placeholder="Email" name="email" />
+          <label class="login-field-icon fui-mail" for="email"></label>
+        </div>
+
+<h5>Update password</h5>
+
+        <div class="form-group">
+          <input type="password" class="form-control login-field" value="" placeholder="Old password" name="oldpass" />
+          <label class="login-field-icon fui-lock" for="pass"></label>
+        </div>
+
+        <div class="form-group">
+          <input type="password" class="form-control login-field" value="" placeholder="New Password" name="pass" />
+          <label class="login-field-icon fui-lock" for="pass"></label>
+        </div>
+
+        <div class="form-group">
+          <input type="password" class="form-control login-field" value="" placeholder="Confirm" name="passconf" />
+          <label class="login-field-icon fui-lock" for="passconf"></label>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg btn-block">Update profile</button>
+      </div>
+    </form>
+
+  </div>
+</div>

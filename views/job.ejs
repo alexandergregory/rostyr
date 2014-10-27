@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+
+<% if(user.Jobs) { %>
+<div class="container content-top">
+  <h2>Jobs</h2>
+<% for(var i=0; i<user.Jobs.length; i++) { %>
+
+  <h3><%= user.Jobs[i].date.toDateString() %></h3>
+
+  <table class="table">
+    <thead>
+      <th class="col-xs-2">Client</th>
+      <th class="col-xs-1">Arrival</th>
+      <th class="col-xs-5">Location</th>
+      <th class="col-xs-1">Pax</th>
+      <th class="col-xs-2">Event</th>
+      <th class="col-xs-1"></th>
+    </thead>
+    <tbody>
+         <tr>
+           <td><%= user.Jobs[i].Client.name %></td>
+	   <td>1730</td>
+           <td><%= user.Jobs[i].Location.name %></td>
+           <td><%= user.Jobs[i].pax %></td>
+           <td><%= user.Jobs[i].EventType.name %></td>
+
+	   <td class="text-right">
+             <a href="/job/remove?id=<%= user.Jobs[i].id %>&redirect=job" class="btn-sm btn-danger">
+               <span class="fui-cross"></span>
+             </a>
+           </td>
+         </tr>
+    </tbody>
+  </table>
+
+<% if(user.Jobs[i].Bookings[0]) { %>
+<div class="no-gutter col-xs-10 col-xs-offset-2">
+  <table class="table table-striped">
+    <thead>
+      <th>Start</th>
+      <th>Position</th>
+    </thead>
+    <tbody>
+
+<% 
+var start = _.pluck(user.Jobs[i].Bookings, 'start');
+var uniqStart = _.uniq(start);
+%>
+
+<% for(var j=0; j<uniqStart.length; j++) { %>
+     <tr>
+       <td><%= uniqStart[j] %></td>
+
+<%
+var posObj = _.where(user.Jobs[i].Bookings, { start: uniqStart[j] });
+var pos = _.pluck(posObj, 'position');
+var uniqPos = _.uniq(pos);
+%>
+
+<% if(uniqPos) { %>
+       <td><%= uniqPos[0] %></td>
+
+<% for(var k=1; k<uniqPos.length; k++) { %>
+    </tr>
+    <tr>
+      <td></td>
+      <td><%= uniqPos[k] %></td>
+
+<% var bookings = _.where(user.Jobs[i].Bookings, { start: uniqStart[j], position: uniqPos[k] }); %>
+<% console.log(bookings); %>
+<% for(var l=0; l<bookings.length; l++) { %>
+
+<td><%= user.Jobs[i].Bookings[l].position %></td>
+
+<% } %>
+
+
+
+<% } %>
+<% } %>
+    </tr>
+<% } %>
+
+    </tbody>
+  </table>
+</div>
+<% } %>
+
+  <form class="form-inline" method="post" action="api/booking/<%= user.Jobs[i].id %>" role="form">
+    <div class="no-gutter col-xs-10 col-xs-offset-2">
+      <table class="table">
+	<thead>
+	  <th>Start</th>
+	  <th>Position</th>
+	  <th>No.</th>
+	  <th class="col-xs-1"></th>
+	</thead>
+	<tbody>
+	  <tr>
+	    <td><div class="form-group"><input type="text" class="form-control input-sm" placeholder="24 hour time" name="start"></div></td>
+	    <td><div class="form-group"><input type="text" class="form-control input-sm" placeholder="Position" name="position"></div></td>
+	    <td><div class="form-group"><input type="text" class="form-control input-sm" placeholder="No." name="number"></div></td>
+	    <input type="hidden" value="<%= user.Jobs[i].id %>" name="jobId">
+	    <td class="text-right">
+	      <button type="submit" class="btn btn-sm btn-primary">
+		<span class="fui-plus"></span>
+	      </button>
+	    </td>
+	  </tr>
+	</tbody>
+      </table>
+    </div>
+  </form>
+<% } %>
+<% } %>
+</div>
+
+
+<!-- create job section  -->
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-6">
+
+      <form class="form-horizontal" method="post" action="/job/create" role="form">
+        <div class="login-form">
+
+          <% if(message) { %>
+          <%= message %>
+          <% } %>
+
+          <h5>Create job</h5>
+
+          <div class="form-group">
+            <div class="col-xs-4"><input type="integer" class="form-control" placeholder="dd" name="day"></div>
+            <div class="col-xs-4"><input type="integer" class="form-control" placeholder="mm" name="month"></div>
+            <div class="col-xs-4"><input type="integer" class="form-control" placeholder="year" name="year"></div>
+          </div>
+
+          <div class="form-group">
+            <div class="col-xs-12">
+              <input type="text" class="form-control" placeholder="Client" name="client">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="col-xs-12">
+              <input type="text" class="form-control" placeholder="Location" name="location">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="col-xs-4">
+              <input type="integer" class="form-control" placeholder="Pax" name="pax">
+            </div>
+            <div class="col-xs-8">
+              <input type="text" class="form-control" placeholder="Event Type" name="eventType">
+            </div>
+          </div>
+
+	  <input type="hidden" value="job" name="redirect">
+
+          <div class="form-group">
+            <div class="col-sm-6 col-sm-offset-3">
+              <button type="submit" class="btn btn-primary btn-lg btn-block">Add job</button>
+            </div>
+          </div>
+
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>

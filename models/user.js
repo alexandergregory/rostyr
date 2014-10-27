@@ -25,15 +25,6 @@ module.exports = function(sequelize, DataTypes) {
 	    type: DataTypes.STRING,
 	    unique: true,
 	},
-	tutor: {
-	    type: DataTypes.BOOLEAN,
-	    defaultValue: false,
-	},
-	rate: {
-	    type: DataTypes.INTEGER, 
-	    allowNull: true,
-	    validate: { isInt: { msg: 'Rate must be an integer' } }
-	},
 	active: {
 	    type: DataTypes.BOOLEAN,
 	    defaultValue: false,
@@ -49,7 +40,9 @@ module.exports = function(sequelize, DataTypes) {
 	},
 	associate: function(models) {
 	    User.hasMany(models.Role);
-	    User.hasMany(models.Subject);
+	    User.hasMany(models.Job);
+	    User.hasMany(models.Staff);
+	    User.hasMany(models.Position);
 	}
     })
     return User
