@@ -6,6 +6,7 @@ module.exports = function(sequelize, DataTypes) {
   }, {
     associate: function(models) {
 	Location.hasMany(models.Job);
+	Location.hasMany(models.User);
     }
   })
 

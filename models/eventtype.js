@@ -6,6 +6,7 @@ module.exports = function(sequelize, DataTypes) {
   }, {
     associate: function(models) {
 	EventType.hasMany(models.Job);
+	EventType.hasMany(models.User);
     }
   })
 

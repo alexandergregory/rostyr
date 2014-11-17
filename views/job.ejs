@@ -1,11 +1,22 @@
 <!DOCTYPE html>
 
+<% if(message != '') { %>
+<div class="container-fluid flash-msg">
+  <div class="container">
+    <div class="col-xs-12 no-gutter">
+      <h5><%= message %></h5>
+    </div>
+  </div>
+</div>
+<% } %>
+
 <% if(user.Jobs) { %>
 <div class="container content-top">
   <h2>Jobs</h2>
+
 <% for(var i=0; i<user.Jobs.length; i++) { %>
 
-  <h3><%= user.Jobs[i].date.toDateString() %></h3>
+  <h3><%= humanize.date('l jS F Y', user.Jobs[i].date) %></h3>
 
   <table class="table">
     <thead>
@@ -18,71 +29,104 @@
     </thead>
     <tbody>
          <tr>
-           <td><%= user.Jobs[i].Client.name %></td>
-	   <td>1730</td>
-           <td><%= user.Jobs[i].Location.name %></td>
-           <td><%= user.Jobs[i].pax %></td>
-           <td><%= user.Jobs[i].EventType.name %></td>
+	   <form class="form-horizontal" method="post" action="api/jobs/<%= user.Jobs[i].id %>" role="form">
+             <td><input class="form-control input-sm" value="<%= user.Jobs[i].Client.name %>" name="client" /></td>
+	     <td><input class="form-control input-sm" value="<%= humanize.date('Hi', user.Jobs[i].date) %>" name="time" /></td>
+             <td><input class="form-control input-sm" value="<%= user.Jobs[i].Location.name %>" name="location" /></td>
+             <td><input class="form-control input-sm" value="<%= user.Jobs[i].pax %>" name="pax" /></td>
+             <td><input class="form-control input-sm" value="<%= user.Jobs[i].EventType.name %>" name="eventType" /></td>
 
-	   <td class="text-right">
-             <a href="/job/remove?id=<%= user.Jobs[i].id %>&redirect=job" class="btn-sm btn-danger">
-               <span class="fui-cross"></span>
-             </a>
-           </td>
+	     <td class="text-right">
+               <a href="/api/job/remove/<%= user.Jobs[i].id %>?redirect=job" class="btn-sm btn-danger">
+		 <span class="fui-cross"></span>
+               </a>
+             </td>
+	   </form>
          </tr>
     </tbody>
   </table>
 
 <% if(user.Jobs[i].Bookings[0]) { %>
 <div class="no-gutter col-xs-10 col-xs-offset-2">
+
+  <form class="form-inline" method="post" action="api/booking/<%= user.Jobs[i].id %>" role="form">
+
   <table class="table table-striped">
     <thead>
-      <th>Start</th>
-      <th>Position</th>
+      <th class="col-xs-1">Start</th>
+      <th class="col-xs-1">No.</th>
+      <th class="col-xs-3">Position</th>
+      <th></th>
+      <th></th>
+      <th></th>
     </thead>
     <tbody>
 
+
 <% 
-var start = _.pluck(user.Jobs[i].Bookings, 'start');
-var uniqStart = _.uniq(start);
+  // get start times
+
+  var start = _.pluck(user.Jobs[i].Bookings, 'start');
+  var uniqStart = _.uniq(start);
+
+  for(var j=0; j<uniqStart.length; j++) {
+
+    // get positions for each start time
+
+    var posObj = _.where(user.Jobs[i].Bookings, { start: uniqStart[j] });
+    var pos = _.pluck(posObj, 'position');
+    var uniqPos = _.uniq(pos);
+
+    for(var k=0; k<uniqPos.length; k++) {
+        %><tr><%
+      var bookings = _.where(user.Jobs[i].Bookings, { start: uniqStart[j], position: uniqPos[k] });
+      console.log(_.pluck(bookings, 'id'));
+
+	%><td><% if(k==0) { %><%= uniqStart[j] %><% } %></td><%
+	%><td><%= bookings.length %></td><%
+        %><td><%= uniqPos[k] %></td><%
+
+      var mult = Math.floor(bookings.length/3);
+      var mod = bookings.length % 3;
+      
+if(mod!=0) {
+var diff = 3-mod;
+} else {
+var diff = 0;
+}
+
+console.log(mult);
+console.log(diff);
+
+      for(var l=0; l<bookings.length; l++) {
+
+	%>
+	  <td>
+	    <div class="form-group no-margin">
+	      <label class="sr-only" for="<%= bookings[l].id %>"><%= bookings[l].id %></label>
+	      <input type="text" class="form-control input-sm" placeholder="Name" name="<%= bookings[l].id %>">
+	    </div>
+	  </td>
+	<%
+
+      }
+
+      for(var m=0; m<diff; m++) {
+	   %><td></td><%
+      }
+
+        %></tr><%
+    }
+
+  }
 %>
 
-<% for(var j=0; j<uniqStart.length; j++) { %>
-     <tr>
-       <td><%= uniqStart[j] %></td>
-
-<%
-var posObj = _.where(user.Jobs[i].Bookings, { start: uniqStart[j] });
-var pos = _.pluck(posObj, 'position');
-var uniqPos = _.uniq(pos);
-%>
-
-<% if(uniqPos) { %>
-       <td><%= uniqPos[0] %></td>
-
-<% for(var k=1; k<uniqPos.length; k++) { %>
-    </tr>
-    <tr>
-      <td></td>
-      <td><%= uniqPos[k] %></td>
-
-<% var bookings = _.where(user.Jobs[i].Bookings, { start: uniqStart[j], position: uniqPos[k] }); %>
-<% console.log(bookings); %>
-<% for(var l=0; l<bookings.length; l++) { %>
-
-<td><%= user.Jobs[i].Bookings[l].position %></td>
-
-<% } %>
-
-
-
-<% } %>
-<% } %>
-    </tr>
-<% } %>
 
     </tbody>
   </table>
+
+  </form>
+
 </div>
 <% } %>
 
@@ -116,53 +160,66 @@ var uniqPos = _.uniq(pos);
 </div>
 
 
-<!-- create job section  -->
+<!-- NEW JOB -->
 
 <div class="container">
   <div class="row">
-    <div class="col-sm-6">
+    <div class="col-xs-12">
 
-      <form class="form-horizontal" method="post" action="/job/create" role="form">
+      <form class="form-horizontal" method="post" action="/api/job/" role="form">
         <div class="login-form">
 
-          <% if(message) { %>
-          <%= message %>
-          <% } %>
+          <h5>New job</h5>
 
-          <h5>Create job</h5>
+          <div class="form-group sm-mb">
 
-          <div class="form-group">
-            <div class="col-xs-4"><input type="integer" class="form-control" placeholder="dd" name="day"></div>
-            <div class="col-xs-4"><input type="integer" class="form-control" placeholder="mm" name="month"></div>
-            <div class="col-xs-4"><input type="integer" class="form-control" placeholder="year" name="year"></div>
+	    <label class="col-sm-1" for="day">Date</label>
+	    <div class="col-sm-5 no-gutter">
+              <div class="col-xs-4"><input type="integer" class="form-control" placeholder="dd" name="day"></div>
+              <div class="col-xs-4"><input type="integer" class="form-control" placeholder="mm" name="month"></div>
+              <div class="col-xs-4"><input type="integer" class="form-control" placeholder="year" name="year"></div>
+	    </div>
+
+	    <label class="col-sm-1" for="time">Arrival</label>
+	    <div class="col-sm-5">
+	      <input type="text" class="form-control" placeholder="24-hour time" name="time" />
+	    </div>
+
           </div>
 
-          <div class="form-group">
-            <div class="col-xs-12">
-              <input type="text" class="form-control" placeholder="Client" name="client">
+
+          <div class="form-group sm-mb">
+
+	    <label class="col-sm-1" for="client">Client</label>
+            <div class="col-sm-5">
+              <input type="text" class="form-control" placeholder="Client" name="client" />
             </div>
-          </div>
 
-          <div class="form-group">
-            <div class="col-xs-12">
+	    <label class="col-sm-1" for="location">Location</label>
+            <div class="col-sm-5">
               <input type="text" class="form-control" placeholder="Location" name="location">
             </div>
+
           </div>
 
-          <div class="form-group">
-            <div class="col-xs-4">
+          <div class="form-group sm-mb">
+
+	    <label class="col-sm-1" for="pax">Pax</label>
+            <div class="col-sm-5">
               <input type="integer" class="form-control" placeholder="Pax" name="pax">
             </div>
-            <div class="col-xs-8">
+
+	    <label class="col-sm-1" for="eventType">Event</label>
+            <div class="col-sm-5">
               <input type="text" class="form-control" placeholder="Event Type" name="eventType">
             </div>
           </div>
 
 	  <input type="hidden" value="job" name="redirect">
 
-          <div class="form-group">
+          <div class="row">
             <div class="col-sm-6 col-sm-offset-3">
-              <button type="submit" class="btn btn-primary btn-lg btn-block">Add job</button>
+              <button type="submit" class="btn btn-primary btn-lg btn-block">Create job</button>
             </div>
           </div>
 
@@ -172,3 +229,87 @@ var uniqPos = _.uniq(pos);
     </div>
   </div>
 </div>
+
+
+<script>
+var clientBlood = new Bloodhound({
+  datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  local: [
+    <% for(var m=0; m<user.Clients.length; m++) { %>
+      { name: '<%= user.Clients[m].name %>' },
+    <% } %>
+  ],
+});
+ 
+var locationBlood = new Bloodhound({
+  datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  local: [
+    <% for(var m=0; m<user.Locations.length; m++) { %>
+      { name: '<%= user.Locations[m].name %>' },
+    <% } %>
+  ],
+});
+
+var eventBlood = new Bloodhound({
+  datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  local: [
+    <% for(var m=0; m<user.EventTypes.length; m++) { %>
+      { name: '<%= user.EventTypes[m].name %>' },
+    <% } %>
+  ],
+});
+
+var posBlood = new Bloodhound({
+  datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  local: [
+    <% for(var m=0; m<user.Positions.length; m++) { %>
+      { name: '<%= user.Positions[m].name %>' },
+    <% } %>
+  ],
+});
+ 
+clientBlood.initialize();
+locationBlood.initialize();
+eventBlood.initialize();
+posBlood.initialize();
+
+$('[name="client"]').typeahead({
+  highlight: true
+},
+{
+  name: 'client',
+  displayKey: 'name',
+  source: clientBlood.ttAdapter(),
+});
+
+$('[name="location"]').typeahead({
+  highlight: true
+},
+{
+  name: 'location',
+  displayKey: 'name',
+  source: locationBlood.ttAdapter(),
+});
+
+$('[name="eventType"]').typeahead({
+  highlight: true
+},
+{
+  name: 'eventType',
+  displayKey: 'name',
+  source: eventBlood.ttAdapter(),
+});
+
+$('[name="position"]').typeahead({
+  highlight: true
+},
+{
+  name: 'position',
+  displayKey: 'name',
+  source: posBlood.ttAdapter(),
+});
+</script>

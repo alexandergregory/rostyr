@@ -1,65 +1,18 @@
 <!DOCTYPE html>
-<div class="container content-top">
-  <h2>Dashboard</h2>
-</div>
 
-<!-- create job section  -->
-
-<div class="container">
-  <div class="row">
-    <div class="col-sm-6">
-
-      <form class="form-horizontal" method="post" action="/job/create" role="form"> 
-	<div class="login-form">
-
-	  <% if(message) { %>
-	  <%= message %>
-	  <% } %>
-
-	  <h5>New job</h5>
-
-	  <div class="form-group">
-	    <div class="col-xs-4"><input type="integer" class="form-control" placeholder="dd" name="day"></div>
-	    <div class="col-xs-4"><input type="integer" class="form-control" placeholder="mm" name="month"></div>
-	    <div class="col-xs-4"><input type="integer" class="form-control" placeholder="year" name="year"></div>
-	  </div>
-
-	  <div class="form-group">
-	    <div class="col-xs-12">
-	      <input type="text" class="form-control" placeholder="Client" name="client">
-	    </div>
-	  </div>
-
-	  <div class="form-group">
-	    <div class="col-xs-12">
-	      <input type="text" class="form-control" placeholder="Location" name="location">
-	    </div>
-	  </div>
-
-	  <div class="form-group">
-	    <div class="col-xs-4">
-	      <input type="integer" class="form-control" placeholder="Pax" name="pax">
-	    </div>
-	    <div class="col-xs-8">
-	      <input type="text" class="form-control" placeholder="Event Type" name="eventType">
-	    </div>
-	  </div>
-
-	  <input type="hidden" value="dash" name="redirect">
-
-	  <div class="form-group">
-	    <div class="col-sm-6 col-sm-offset-3">
-	      <button type="submit" class="btn btn-primary btn-lg btn-block">Create job</button>
-	    </div>
-	  </div>
-
-	</div>
-      </form>
-
+<% if(message != '') { %>
+<div class="container-fluid flash-msg">
+  <div class="container">
+    <div class="col-xs-12 no-gutter">
+      <h5><%= message %></h5>
     </div>
   </div>
 </div>
+<% } %>
 
+<div class="container content-top">
+  <h2>Dashboard</h2>
+</div>
 
 <% if(user.Jobs) { %>
 <div class="container">
@@ -76,13 +29,13 @@
     <tbody>
       <% for(var i=0; i<user.Jobs.length; i++) {%>
          <tr>
-           <td><%= user.Jobs[i].date.toDateString() %></td>
+           <td><%= humanize.date('l jS M', user.Jobs[i].date) %></td>
            <td><%= user.Jobs[i].Client.name %></td>
            <td><%= user.Jobs[i].Location.name %></td>
 	   <td><%= user.Jobs[i].pax %></td>
            <td><%= user.Jobs[i].EventType.name %></td>
 	   <td class="text-right"> 
-	     <a href="/job/remove?id=<%= user.Jobs[i].id %>&redirect=dash" class="btn-sm btn-danger">
+	     <a href="/api/job/remove/<%= user.Jobs[i].id %>?redirect=dash" class="btn-sm btn-danger">
 	       <span class="fui-cross"></span>
 	     </a>
 	   </td>
@@ -93,3 +46,72 @@
 </div>
 <% } %>
 
+<!-- NEW JOB -->
+
+<div class="container">
+  <div class="row">
+    <div class="col-xs-12">
+
+      <form class="form-horizontal" method="post" action="api/job/" role="form">
+        <div class="login-form">
+
+          <h5>New job</h5>
+
+          <div class="form-group sm-mb">
+
+            <label class="col-sm-1" for="day">Date</label>
+            <div class="col-sm-5 no-gutter">
+              <div class="col-xs-4"><input type="integer" class="form-control" placeholder="dd" name="day"></div>
+              <div class="col-xs-4"><input type="integer" class="form-control" placeholder="mm" name="month"></div>
+              <div class="col-xs-4"><input type="integer" class="form-control" placeholder="year" name="year"></div>
+            </div>
+
+            <label class="col-sm-1" for="time">Arrival</label>
+            <div class="col-sm-5">
+              <input type="text" class="form-control" placeholder="24-hour time" name="time" />
+            </div>
+
+          </div>
+
+
+          <div class="form-group sm-mb">
+
+            <label class="col-sm-1" for="client">Client</label>
+            <div class="col-sm-5">
+              <input type="text" class="form-control" placeholder="Client" name="client" />
+            </div>
+
+            <label class="col-sm-1" for="location">Location</label>
+            <div class="col-sm-5">
+              <input type="text" class="form-control" placeholder="Location" name="location">
+            </div>
+
+          </div>
+
+          <div class="form-group sm-mb">
+
+            <label class="col-sm-1" for="pax">Pax</label>
+            <div class="col-sm-5">
+              <input type="integer" class="form-control" placeholder="Pax" name="pax">
+            </div>
+
+            <label class="col-sm-1" for="eventType">Event</label>
+            <div class="col-sm-5">
+              <input type="text" class="form-control" placeholder="Event Type" name="eventType">
+            </div>
+          </div>
+
+          <input type="hidden" value="dash" name="redirect">
+
+          <div class="row">
+            <div class="col-sm-6 col-sm-offset-3">
+              <button type="submit" class="btn btn-primary btn-lg btn-block">Create job</button>
+            </div>
+          </div>
+
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>

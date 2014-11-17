@@ -43,6 +43,9 @@ module.exports = function(sequelize, DataTypes) {
 	    User.hasMany(models.Job);
 	    User.hasMany(models.Staff);
 	    User.hasMany(models.Position);
+	    User.hasMany(models.Location);
+	    User.hasMany(models.EventType);
+	    User.hasMany(models.Client);
 	}
     })
     return User

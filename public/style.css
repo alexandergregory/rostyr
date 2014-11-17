@@ -1,3 +1,7 @@
+.flash-msg {
+    background-color: #E74C3C;
+    color: #fff;
+}
 
 .navbar {
     margin-bottom: 0px;
@@ -9,10 +13,6 @@
 
 .padform {
     padding: 30px 0;
-}
-
-.no-margin {
-    margin-top: 0;
 }
 
 label[for=tagsinput] {
@@ -36,8 +36,12 @@ label[for=tagsinput] {
   padding-left: 0;
 }
 
-.btn-sm {
-    padding-bottom: 6px;
+.sm-mb {
+    margin-bottom: 10px;
+}
+
+.no-margin {
+    margin-bottom: 0;
 }
 
 /* Footer */

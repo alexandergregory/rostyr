@@ -41,62 +41,13 @@
   font-style: normal;
 }
 @font-face {
-  font-family: "Flat-UI-Icons";
-  src: url('../fonts/flat-ui-icons-regular.eot');
-  src: url('../fonts/flat-ui-icons-regular.eot?#iefix') format('embedded-opentype'), url('../fonts/flat-ui-icons-regular.woff') format('woff'), url('../fonts/flat-ui-icons-regular.ttf') format('tr\
-uetype'), url('../fonts/flat-ui-icons-regular.svg#flat-ui-icons-regular') format('svg');
-  font-weight: normal;
-  font-style: normal;
+  font-family: 'Flat-UI-Pro-Icons';
+  src: url('../fonts/glyphicons/flat-ui-icons-regular.eot');
+  src: url('../fonts/glyphicons/flat-ui-icons-regular.eot?#iefix') format('embedded-opentype'), url('../fonts/glyphicons/flat-ui-icons-regular.woff') format('woff'), url('../fonts/glyphicons/flat-ui-icons-regular.ttf') format('truetype'), url('../fonts/glyphicons/flat-ui-icons-regular.svg#flat-ui-icons-regular') format('svg');
 }
-/* Use the following CSS code if you want to use data attributes for inserting your icons */
-[data-icon]:before {
-  font-family: 'Flat-UI-Icons';
-  content: attr(data-icon);
-  speak: none;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-/* Use the following CSS code if you want to have a class per icon */
-/*
-Instead of a list of all class selectors,
-you can use the generic selector below, but it's slower:
+[class^="fui-"],
 [class*="fui-"] {
-*/
-.fui-arrow-right,
-.fui-arrow-left,
-.fui-cmd,
-.fui-check-inverted,
-.fui-heart,
-.fui-location,
-.fui-plus,
-.fui-check,
-.fui-cross,
-.fui-list,
-.fui-new,
-.fui-video,
-.fui-photo,
-.fui-volume,
-.fui-time,
-.fui-eye,
-.fui-chat,
-.fui-search,
-.fui-user,
-.fui-mail,
-.fui-lock,
-.fui-gear,
-.fui-radio-unchecked,
-.fui-radio-checked,
-.fui-checkbox-unchecked,
-.fui-checkbox-checked,
-.fui-calendar-solid,
-.fui-pause,
-.fui-play,
-.fui-check-inverted-2 {
-  display: inline-block;
-  font-family: 'Flat-UI-Icons';
+  font-family: 'Flat-UI-Pro-Icons';
   speak: none;
   font-style: normal;
   font-weight: normal;
@@ -105,114 +56,299 @@ you can use the generic selector below, but it's slower:
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-.fui-arrow-right:before {
-  content: "\e02c";
+.fui-triangle-up:before {
+  content: "\e600";
+}
+.fui-triangle-down:before {
+  content: "\e601";
+}
+.fui-triangle-up-small:before {
+  content: "\e602";
+}
+.fui-triangle-down-small:before {
+  content: "\e603";
+}
+.fui-triangle-left-large:before {
+  content: "\e604";
+}
+.fui-triangle-right-large:before {
+  content: "\e605";
 }
 .fui-arrow-left:before {
-  content: "\e02d";
+  content: "\e606";
 }
-.fui-cmd:before {
-  content: "\e02f";
-}
-.fui-check-inverted:before {
-  content: "\e006";
-}
-.fui-heart:before {
-  content: "\e007";
-}
-.fui-location:before {
-  content: "\e008";
+.fui-arrow-right:before {
+  content: "\e607";
 }
 .fui-plus:before {
-  content: "\e009";
-}
-.fui-check:before {
-  content: "\e00a";
+  content: "\e608";
 }
 .fui-cross:before {
-  content: "\e00b";
+  content: "\e609";
 }
-.fui-list:before {
-  content: "\e00c";
-}
-.fui-new:before {
-  content: "\e00d";
-}
-.fui-video:before {
-  content: "\e00e";
-}
-.fui-photo:before {
-  content: "\e00f";
-}
-.fui-volume:before {
-  content: "\e010";
-}
-.fui-time:before {
-  content: "\e011";
-}
-.fui-eye:before {
-  content: "\e012";
-}
-.fui-chat:before {
-  content: "\e013";
-}
-.fui-search:before {
-  content: "\e01c";
-}
-.fui-user:before {
-  content: "\e011";
-}
-.fui-eye:before {
-  content: "\e012";
-}
-.fui-chat:before {
-  content: "\e013";
-}
-.fui-search:before {
-  content: "\e01c";
-}
-.fui-user:before {
-  content: "\e01d";
-}
-.fui-mail:before {
-  content: "\e01e";
-}
-.fui-lock:before {
-  content: "\e01f";
-}
-.fui-gear:before {
-  content: "\e024";
+.fui-check:before {
+  content: "\e60a";
 }
 .fui-radio-unchecked:before {
-  content: "\e02b";
+  content: "\e60b";
 }
 .fui-radio-checked:before {
-  content: "\e032";
+  content: "\e60c";
 }
 .fui-checkbox-unchecked:before {
-  content: "\e033";
+  content: "\e60d";
 }
 .fui-checkbox-checked:before {
-  content: "\e034";
+  content: "\e60e";
 }
-.fui-calendar-solid:before {
-  content: "\e022";
+.fui-info-circle:before {
+  content: "\e60f";
+}
+.fui-alert-circle:before {
+  content: "\e610";
+}
+.fui-question-circle:before {
+  content: "\e611";
+}
+.fui-check-circle:before {
+  content: "\e612";
+}
+.fui-cross-circle:before {
+  content: "\e613";
+}
+.fui-plus-circle:before {
+  content: "\e614";
 }
 .fui-pause:before {
-  content: "\e03b";
+  content: "\e615";
 }
 .fui-play:before {
-  content: "\e03c";
+  content: "\e616";
 }
-.fui-check-inverted-2:before {
-  content: "\e000";
+.fui-volume:before {
+  content: "\e617";
 }
-.dropdown-arrow-inverse {
-  border-bottom-color: #34495e !important;
-  border-top-color: #34495e !important;
+.fui-mute:before {
+  content: "\e618";
+}
+.fui-resize:before {
+  content: "\e619";
+}
+.fui-list:before {
+  content: "\e61a";
+}
+.fui-list-thumbnailed:before {
+  content: "\e61b";
+}
+.fui-list-small-thumbnails:before {
+  content: "\e61c";
+}
+.fui-list-large-thumbnails:before {
+  content: "\e61d";
+}
+.fui-list-numbered:before {
+  content: "\e61e";
+}
+.fui-list-columned:before {
+  content: "\e61f";
+}
+.fui-list-bulleted:before {
+  content: "\e620";
+}
+.fui-window:before {
+  content: "\e621";
+}
+.fui-windows:before {
+  content: "\e622";
+}
+.fui-loop:before {
+  content: "\e623";
+}
+.fui-cmd:before {
+  content: "\e624";
+}
+.fui-mic:before {
+  content: "\e625";
+}
+.fui-heart:before {
+  content: "\e626";
+}
+.fui-location:before {
+  content: "\e627";
+}
+.fui-new:before {
+  content: "\e628";
+}
+.fui-video:before {
+  content: "\e629";
+}
+.fui-photo:before {
+  content: "\e62a";
+}
+.fui-time:before {
+  content: "\e62b";
+}
+.fui-eye:before {
+  content: "\e62c";
+}
+.fui-chat:before {
+  content: "\e62d";
+}
+.fui-home:before {
+  content: "\e62e";
+}
+.fui-upload:before {
+  content: "\e62f";
+}
+.fui-search:before {
+  content: "\e630";
+}
+.fui-user:before {
+  content: "\e631";
+}
+.fui-mail:before {
+  content: "\e632";
+}
+.fui-lock:before {
+  content: "\e633";
+}
+.fui-power:before {
+  content: "\e634";
+}
+.fui-calendar:before {
+  content: "\e635";
+}
+.fui-gear:before {
+  content: "\e636";
+}
+.fui-bookmark:before {
+  content: "\e637";
+}
+.fui-exit:before {
+  content: "\e638";
+}
+.fui-trash:before {
+  content: "\e639";
+}
+.fui-folder:before {
+  content: "\e63a";
+}
+.fui-bubble:before {
+  content: "\e63b";
+}
+.fui-export:before {
+  content: "\e63c";
+}
+.fui-calendar-solid:before {
+  content: "\e63d";
+}
+.fui-star:before {
+  content: "\e63e";
+}
+.fui-star-2:before {
+  content: "\e63f";
+}
+.fui-credit-card:before {
+  content: "\e640";
+}
+.fui-clip:before {
+  content: "\e641";
+}
+.fui-link:before {
+  content: "\e642";
+}
+.fui-tag:before {
+  content: "\e643";
+}
+.fui-document:before {
+  content: "\e644";
+}
+.fui-image:before {
+  content: "\e645";
+}
+.fui-facebook:before {
+  content: "\e646";
+}
+.fui-youtube:before {
+  content: "\e647";
+}
+.fui-vimeo:before {
+  content: "\e648";
+}
+.fui-twitter:before {
+  content: "\e649";
+}
+.fui-spotify:before {
+  content: "\e64a";
+}
+.fui-skype:before {
+  content: "\e64b";
+}
+.fui-pinterest:before {
+  content: "\e64c";
+}
+.fui-path:before {
+  content: "\e64d";
+}
+.fui-linkedin:before {
+  content: "\e64e";
+}
+.fui-google-plus:before {
+  content: "\e64f";
+}
+.fui-dribbble:before {
+  content: "\e650";
+}
+.fui-behance:before {
+  content: "\e651";
+}
+.fui-stumbleupon:before {
+  content: "\e652";
+}
+.fui-yelp:before {
+  content: "\e653";
+}
+.fui-wordpress:before {
+  content: "\e654";
+}
+.fui-windows-8:before {
+  content: "\e655";
+}
+.fui-vine:before {
+  content: "\e656";
+}
+.fui-tumblr:before {
+  content: "\e657";
+}
+.fui-paypal:before {
+  content: "\e658";
+}
+.fui-lastfm:before {
+  content: "\e659";
+}
+.fui-instagram:before {
+  content: "\e65a";
+}
+.fui-html5:before {
+  content: "\e65b";
+}
+.fui-github:before {
+  content: "\e65c";
+}
+.fui-foursquare:before {
+  content: "\e65d";
+}
+.fui-dropbox:before {
+  content: "\e65e";
+}
+.fui-android:before {
+  content: "\e65f";
+}
+.fui-apple:before {
+  content: "\e660";
 }
 body {
-  font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+  font-family: "Lato", Helvetica, Arial, sans-serif;
   font-size: 18px;
   line-height: 1.72222;
   color: #34495e;
@@ -373,10 +509,10 @@ a.text-success:hover {
   color: #25a25a;
 }
 .text-info {
-  color: #1abc9c;
+  color: #3498db;
 }
 a.text-info:hover {
-  color: #148f77;
+  color: #217dbb;
 }
 .bg-primary {
   color: #ffffff;
@@ -480,7 +616,7 @@ code,
 kbd,
 pre,
 samp {
-  font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+  font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
 }
 code {
   padding: 2px 6px;
@@ -670,7 +806,7 @@ fieldset[disabled] .btn-primary.active {
 }
 .btn-info {
   color: #ffffff;
-  background-color: #1abc9c;
+  background-color: #3498db;
 }
 .btn-info:hover,
 .btn-info.hover,
@@ -679,14 +815,14 @@ fieldset[disabled] .btn-primary.active {
 .btn-info.active,
 .open > .dropdown-toggle.btn-info {
   color: #ffffff;
-  background-color: #48c9b0;
-  border-color: #48c9b0;
+  background-color: #5dade2;
+  border-color: #5dade2;
 }
 .btn-info:active,
 .btn-info.active,
 .open > .dropdown-toggle.btn-info {
-  background: #16a085;
-  border-color: #16a085;
+  background: #2c81ba;
+  border-color: #2c81ba;
 }
 .btn-info.disabled,
 .btn-info[disabled],
@@ -707,10 +843,10 @@ fieldset[disabled] .btn-info:active,
 .btn-info[disabled].active,
 fieldset[disabled] .btn-info.active {
   background-color: #bdc3c7;
-  border-color: #1abc9c;
+  border-color: #3498db;
 }
 .btn-info .badge {
-  color: #1abc9c;
+  color: #3498db;
   background-color: #ffffff;
 }
 .btn-danger {
@@ -1065,7 +1201,7 @@ label {
 .select2-search input[type="text"] {
   border: 2px solid #bdc3c7;
   color: #34495e;
-  font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+  font-family: "Lato", Helvetica, Arial, sans-serif;
   font-size: 15px;
   line-height: 1.467;
   padding: 8px 12px;
@@ -1820,26 +1956,26 @@ fieldset[disabled] .input-group-btn .btn-default.active {
 }
 .select-info .select2-choice {
   color: #ffffff;
-  background-color: #1abc9c;
+  background-color: #3498db;
 }
 .select-info .select2-choice:hover,
 .select-info .select2-choice.hover,
 .select-info .select2-choice:focus,
 .select-info .select2-choice:active {
   color: #ffffff;
-  background-color: #48c9b0;
-  border-color: #48c9b0;
+  background-color: #5dade2;
+  border-color: #5dade2;
 }
 .select-info .select2-choice:active {
-  background: #16a085;
-  border-color: #16a085;
+  background: #2c81ba;
+  border-color: #2c81ba;
 }
 .select2-container-disabled.select-info .select2-choice,
 .select2-container-disabled.select-info .select2-choice:hover,
 .select2-container-disabled.select-info .select2-choice:focus,
 .select2-container-disabled.select-info .select2-choice:active {
   background-color: #bdc3c7;
-  border-color: #1abc9c;
+  border-color: #3498db;
 }
 .select-info .select2-choice .select2-arrow {
   border-top-color: #ffffff;
@@ -2114,13 +2250,13 @@ fieldset[disabled] .input-group-btn .btn-default.active {
   background-color: #5dade2;
 }
 .select2-container-multi.multiselect-info {
-  border-color: #1abc9c;
+  border-color: #3498db;
 }
 .select2-container-multi.multiselect-info .select2-search-choice {
-  background-color: #1abc9c;
+  background-color: #3498db;
 }
 .select2-container-multi.multiselect-info .select2-search-choice:hover {
-  background-color: #48c9b0;
+  background-color: #5dade2;
 }
 .select2-container-multi.multiselect-danger {
   border-color: #e74c3c;
@@ -2973,7 +3109,7 @@ select[multiple].navbar-form .select2-search input[type="text"] {
 }
 .navbar-unread,
 .navbar-new {
-  font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+  font-family: "Lato", Helvetica, Arial, sans-serif;
   background-color: #3498db;
   border-radius: 50%;
   color: #ffffff;
@@ -3596,7 +3732,7 @@ fieldset[disabled] .navbar-inverse .navbar-btn.active {
 .twitter-typeahead .tt-hint {
   border: 2px solid #bdc3c7;
   color: #34495e;
-  font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+  font-family: "Lato", Helvetica, Arial, sans-serif;
   font-size: 15px;
   line-height: 1.467;
   padding: 8px 12px;
@@ -3695,7 +3831,7 @@ fieldset[disabled] .twitter-typeahead .tt-hint {
   background-color: #e74c3c;
 }
 .progress-bar-info {
-  background-color: #1abc9c;
+  background-color: #3498db;
 }
 .ui-slider {
   background: #ebedef;
@@ -4018,7 +4154,7 @@ fieldset[disabled] .twitter-typeahead .tt-hint {
     border-bottom-color: #58d68d;
   }
   .pagination > .btn:first-child.btn-info {
-    border-bottom-color: #48c9b0;
+    border-bottom-color: #5dade2;
   }
   .pagination > .btn:first-child.btn-inverse {
     border-bottom-color: #5d6d7e;
@@ -4051,7 +4187,7 @@ fieldset[disabled] .twitter-typeahead .tt-hint {
     border-bottom-color: #58d68d;
   }
   .pagination > .btn + ul + .btn.btn-info {
-    border-bottom-color: #48c9b0;
+    border-bottom-color: #5dade2;
   }
   .pagination > .btn + ul + .btn.btn-inverse {
     border-bottom-color: #5d6d7e;
@@ -4139,28 +4275,28 @@ fieldset[disabled] .twitter-typeahead .tt-hint {
   background-color: #cda70d;
 }
 .pagination-info ul {
-  background-color: #1abc9c;
+  background-color: #3498db;
 }
 .pagination-info ul li.previous > a {
-  border-right-color: #68d3be;
+  border-right-color: #79bbe7;
 }
 .pagination-info ul li > a,
 .pagination-info ul li > span {
-  border-left-color: #68d3be;
+  border-left-color: #79bbe7;
 }
 .pagination-info ul li > a:hover,
 .pagination-info ul li > span:hover,
 .pagination-info ul li > a:focus,
 .pagination-info ul li > span:focus {
-  background-color: #48c9b0;
+  background-color: #5dade2;
 }
 .pagination-info ul li > a:active,
 .pagination-info ul li > span:active {
-  background-color: #16a085;
+  background-color: #2c81ba;
 }
 .pagination-info ul li.active > a,
 .pagination-info ul li.active > span {
-  background-color: #16a085;
+  background-color: #2c81ba;
 }
 .pagination-inverse ul {
   background-color: #34495e;
@@ -4668,10 +4804,10 @@ fieldset[disabled] .twitter-typeahead .tt-hint {
   background-color: #ffffff;
 }
 .bootstrap-switch-off .bootstrap-switch-handle-on ~ .bootstrap-switch-handle-off.bootstrap-switch-info {
-  box-shadow: inset 0 0 transparent, -16px 0 0 #1abc9c;
+  box-shadow: inset 0 0 transparent, -16px 0 0 #3498db;
 }
 .bootstrap-switch-off .bootstrap-switch-handle-on ~ .bootstrap-switch-handle-off.bootstrap-switch-info:before {
-  border-color: #1abc9c;
+  border-color: #3498db;
   background-color: #ffffff;
 }
 .bootstrap-switch-off .bootstrap-switch-handle-on ~ .bootstrap-switch-handle-off.bootstrap-switch-danger {
@@ -4750,14 +4886,14 @@ fieldset[disabled] .twitter-typeahead .tt-hint {
 }
 .bootstrap-switch-info {
   color: #ffffff;
-  background-color: #1abc9c;
+  background-color: #3498db;
 }
 .bootstrap-switch-info ~ .bootstrap-switch-handle-off:before {
   background-color: #ffffff;
-  border-color: #1abc9c;
+  border-color: #3498db;
 }
 .bootstrap-switch-on .bootstrap-switch-info ~ .bootstrap-switch-handle-off {
-  box-shadow: inset 16px 0 0 #1abc9c;
+  box-shadow: inset 16px 0 0 #3498db;
 }
 .bootstrap-switch-success {
   color: #ffffff;
@@ -5056,7 +5192,7 @@ fieldset[disabled] .twitter-typeahead .tt-hint {
   bottom: 4em;
   left: 1em;
   right: 1em;
-  font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+  font-family: "Lato", Helvetica, Arial, sans-serif;
 }
 .vjs-text-track {
   display: none;
@@ -5282,7 +5418,7 @@ fieldset[disabled] .twitter-typeahead .tt-hint {
   background-color: #22638e;
 }
 .vjs-time-controls {
-  font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+  font-family: "Lato", Helvetica, Arial, sans-serif;
   font-weight: 300;
   font-size: 13px;
   line-height: normal;

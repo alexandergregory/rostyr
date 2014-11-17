@@ -25,7 +25,7 @@ app.set("layout extractScripts", true)
 app.set('port', process.env.PORT || 8080);
 
 app.use(express.static(__dirname + '/public'));
-app.use(layouts);
+app.use(layouts );
 
 app.use(morgan('dev'));
 

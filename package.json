@@ -1,7 +1,7 @@
 {
-  "name": "rostyr-db",
+  "name": "rostyr",
   "version": "0.0.1",
-  "description": "Simple server-side JS order processing",
+  "description": "Rostyr - rostering software",
   "main": "web.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -16,6 +16,7 @@
     "express": "~4.0.0",
     "express-ejs-layouts": "1.1.0",
     "express-session": "~1.7.2",
+    "humanize": "0.0.9",
     "lodash": "~2.4.1",
     "method-override": "2.2.0",
     "morgan": "1.3.0",
