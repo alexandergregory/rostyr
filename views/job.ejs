@@ -14,7 +14,59 @@
 <div class="container content-top">
   <h2>Jobs</h2>
 
+<table class="table table-striped">
+
+<%
+
+var date = _.pluck(user.Jobs, 'date');
+var uniqDate = _.uniq(date);
+uniqDate.forEach(function(date) {
+
+%><h3><%= humanize.date('l jS F Y', date) %></h3><%
+
+   var jobs = _.where(user.Jobs, { date: date });
+   jobs.forEach(function(job) {
+      console.log(job.Client.name);
+%>
+
+  <table class="table">
+    <thead>
+      <th class="col-xs-2">Client</th>
+      <th class="col-xs-1">Arrival</th>
+      <th class="col-xs-5">Location</th>
+      <th class="col-xs-1">Pax</th>
+      <th class="col-xs-2">Event</th>
+      <th class="col-xs-1"></th>
+    </thead>
+    <tbody>
+         <tr>
+	   <form class="form-horizontal" method="post" action="api/jobs/<%= job.id %>" role="form">
+             <td><input class="form-control" value="<%= job.Client.name %>" name="client" /></td>
+	     <td><input class="form-control" value="<%= humanize.date('Hi', job.date) %>" name="time" /></td>
+             <td><input class="form-control" value="<%= job.Location.name %>" name="location" /></td>
+             <td><input class="form-control" value="<%= job.pax %>" name="pax" /></td>
+             <td><input class="form-control" value="<%= job.EventType.name %>" name="eventType" /></td>
+
+	     <td class="text-right">
+               <a href="/api/job/remove/<%= job.id %>?redirect=job" class="btn btn-danger">
+		 <span class="fui-cross"></span>
+               </a>
+             </td>
+	   </form>
+         </tr>
+    </tbody>
+  </table>
+
+
+<%								 
+   });
+});
+
+%>
 <% for(var i=0; i<user.Jobs.length; i++) { %>
+
+<tr><td>
+
 
   <h3><%= humanize.date('l jS F Y', user.Jobs[i].date) %></h3>
 
@@ -30,14 +82,14 @@
     <tbody>
          <tr>
 	   <form class="form-horizontal" method="post" action="api/jobs/<%= user.Jobs[i].id %>" role="form">
-             <td><input class="form-control input-sm" value="<%= user.Jobs[i].Client.name %>" name="client" /></td>
-	     <td><input class="form-control input-sm" value="<%= humanize.date('Hi', user.Jobs[i].date) %>" name="time" /></td>
-             <td><input class="form-control input-sm" value="<%= user.Jobs[i].Location.name %>" name="location" /></td>
-             <td><input class="form-control input-sm" value="<%= user.Jobs[i].pax %>" name="pax" /></td>
-             <td><input class="form-control input-sm" value="<%= user.Jobs[i].EventType.name %>" name="eventType" /></td>
+             <td><input class="form-control" value="<%= user.Jobs[i].Client.name %>" name="client" /></td>
+	     <td><input class="form-control" value="<%= humanize.date('Hi', user.Jobs[i].date) %>" name="time" /></td>
+             <td><input class="form-control" value="<%= user.Jobs[i].Location.name %>" name="location" /></td>
+             <td><input class="form-control" value="<%= user.Jobs[i].pax %>" name="pax" /></td>
+             <td><input class="form-control" value="<%= user.Jobs[i].EventType.name %>" name="eventType" /></td>
 
 	     <td class="text-right">
-               <a href="/api/job/remove/<%= user.Jobs[i].id %>?redirect=job" class="btn-sm btn-danger">
+               <a href="/api/job/remove/<%= user.Jobs[i].id %>?redirect=job" class="btn btn-danger">
 		 <span class="fui-cross"></span>
                </a>
              </td>
@@ -64,59 +116,203 @@
 
 
 <% 
-  // get start times
+// get staff that are available for any given job
+
+//  var staffPos = _.pluck(user.Jobs[i].Bookings, 'position');
+//  var uniqStaffPos = _.uniq(staffPos);
+
+//  console.log(staffPos);
+//  console.log(uniqStaffPos);
+
+//  console.log(humanize.date('l jS M Y', user.Jobs[i].date));
+//  for(var x=0; x<user.Positions.length; x++) {
+//    console.log(user.Positions[x].name);
+//    var staffs = user.Positions[x].Staffs
+//    for(var y=0; y<staffs.length; y++) {
+//      var person = staffs[y];
+//      console.log(person.firstName);
+//    }
+//  }
+
+
+
+// start counter
+var n = 0;
+%>
+
+
+
+
+
+
+<%
+var allStaff = user.Staffs;
+var allStaffp = _.pluck(allStaff, 'firstName');
+
+// console.log('original array');
+// console.log(allStaffp);
+allStaff.forEach(function(staff) {
+   // console.log(staff.firstName);
+});
+
+
+
+// sort by id //
+// ========== //
+
+var idStaff = allStaff.sort(function(a, b) {
+   return a.id - b.id;
+});
+
+// console.log('sorted array');
+idStaff.forEach(function(staff) {
+   // console.log(staff.firstName);
+});
+
+
+
+// get all supervisors //
+// =================== //
+
+var sups = [];
+var el = 'Supervisor';
+allStaff.forEach(function(staff) {
+   var isSup = _.pluck(staff.Positions, 'name').indexOf(el);
+   if(isSup > 0) { 
+      sups.push(staff);
+   }
+});
+
+// console.log('supervisors');
+sups.forEach(function(staff) {
+   // console.log(staff.firstName + ' ' + staff.lastName);
+});
+
+
+
+// sort by position //
+// ================ //
+
+var posStaff = allStaff.sort(function(a, b) {
+   var x = _.pluck(a.Positions, 'name').indexOf("Supervisor"); // hasSup > 0, noSup = -1
+   var y = _.pluck(b.Positions, 'name').indexOf("Supervisor");
+
+   if(x == y) {
+      var v = _.pluck(a.Positions, 'name').indexOf("Barstaff");
+      var w = _.pluck(b.Positions, 'name').indexOf("Barstaff");
+
+      if(v == w) {
+         var t = _.pluck(a.Positions, 'name').indexOf("Waitstaff");
+         var u = _.pluck(b.Positions, 'name').indexOf("Waitstaff");
+
+         return t > u ? -1 : u < t ? 1 : 0;
+      }
+
+      return v > w ? -1 : v < w ? 1 : 0;
+   }
+
+   return x > y ? -1 : x < y ? 1 : 0;
+});
+
+// console.log('position sorted array');
+posStaff.forEach(function(staff) {
+   // console.log(staff.firstName);
+});
+
+
+
+// get position length - create pos arrays - apply pos arrays for each pos line //
+// ============================================================================ //
+
+var start = _.pluck(user.Jobs[i].Bookings, 'start');
+var uniqStart = _.uniq(start);
+
+for(var o=0; o<uniqStart.length; o++) {
+   var posObj = _.where(user.Jobs[i].Bookings, { start: uniqStart[o] });
+   var pos = _.pluck(posObj, 'position');
+   var uniqPos = _.uniq(pos);
+
+   for (var p=0; p<uniqPos.length; p++) {
+      var line = _.where(user.Jobs[i].Bookings, { start: uniqStart[o], position: uniqPos[p] });
+      var count = line.length; //how many of a given pos do we need...
+      // console.log(uniqPos[p]);
+      // console.log(count);
+   }
+}
+
+
+%>
+
+<%
+
+// 
+
+
+  // ========== //
+  // UNIQ START //
+  // ========== //
 
   var start = _.pluck(user.Jobs[i].Bookings, 'start');
   var uniqStart = _.uniq(start);
 
   for(var j=0; j<uniqStart.length; j++) {
 
-    // get positions for each start time
 
-    var posObj = _.where(user.Jobs[i].Bookings, { start: uniqStart[j] });
-    var pos = _.pluck(posObj, 'position');
-    var uniqPos = _.uniq(pos);
+      // ============= //
+      // UNIQ POSITION //
+      // ============= //
 
-    for(var k=0; k<uniqPos.length; k++) {
-        %><tr><%
-      var bookings = _.where(user.Jobs[i].Bookings, { start: uniqStart[j], position: uniqPos[k] });
-      console.log(_.pluck(bookings, 'id'));
+      var posObj = _.where(user.Jobs[i].Bookings, { start: uniqStart[j] });
+      var pos = _.pluck(posObj, 'position');
+      var uniqPos = _.uniq(pos);
 
-	%><td><% if(k==0) { %><%= uniqStart[j] %><% } %></td><%
-	%><td><%= bookings.length %></td><%
-        %><td><%= uniqPos[k] %></td><%
+      for(var k=0; k<uniqPos.length; k++) {
 
-      var mult = Math.floor(bookings.length/3);
-      var mod = bookings.length % 3;
+
+          // ======== //
+          // BOOKINGS //
+          // ======== //
+
+          %><tr><%
+          var bookings = _.where(user.Jobs[i].Bookings, { start: uniqStart[j], position: uniqPos[k] });
+
+          //  console.log(_.pluck(bookings, 'id'));
+
+	  %><td><% if(k==0) { %><%= uniqStart[j] %><% } %></td><%
+	  %><td><%= bookings.length %></td><%
+	  %><td><%= uniqPos[k] %></td><%
+
+          var mult = Math.floor(bookings.length/3);
+          var mod = bookings.length % 3;
       
-if(mod!=0) {
-var diff = 3-mod;
-} else {
-var diff = 0;
-}
+          if(mod!=0) {
+            var diff = 3-mod;
+          } else {
+            var diff = 0;
+          }
 
-console.log(mult);
-console.log(diff);
+          // console.log(mult);
+          // console.log(diff);
 
-      for(var l=0; l<bookings.length; l++) {
+          for(var l=0; l<bookings.length; l++) {
 
-	%>
+	  %>
 	  <td>
 	    <div class="form-group no-margin">
 	      <label class="sr-only" for="<%= bookings[l].id %>"><%= bookings[l].id %></label>
-	      <input type="text" class="form-control input-sm" placeholder="Name" name="<%= bookings[l].id %>">
+	      <input type="text" class="form-control input-sm" placeholder="Name" value="<% if(user.Staffs[n]) { %><%= user.Staffs[n].firstName %><% } %>" name="<%= bookings[l].id %>">
 	    </div>
 	  </td>
-	<%
+	  <%
 
+          }
+
+          for(var m=0; m<diff; m++) {
+	  %><td></td><%
+          }
+
+          %></tr><%
       }
-
-      for(var m=0; m<diff; m++) {
-	   %><td></td><%
-      }
-
-        %></tr><%
-    }
 
   }
 %>
@@ -131,7 +327,7 @@ console.log(diff);
 <% } %>
 
   <form class="form-inline" method="post" action="api/booking/<%= user.Jobs[i].id %>" role="form">
-    <div class="no-gutter col-xs-10 col-xs-offset-2">
+    <div class="no-gutter lg-mb col-xs-10 col-xs-offset-2">
       <table class="table">
 	<thead>
 	  <th>Start</th>
@@ -141,12 +337,12 @@ console.log(diff);
 	</thead>
 	<tbody>
 	  <tr>
-	    <td><div class="form-group"><input type="text" class="form-control input-sm" placeholder="24 hour time" name="start"></div></td>
-	    <td><div class="form-group"><input type="text" class="form-control input-sm" placeholder="Position" name="position"></div></td>
-	    <td><div class="form-group"><input type="text" class="form-control input-sm" placeholder="No." name="number"></div></td>
+	    <td><div class="form-group"><input type="text" class="form-control" placeholder="24 hour time" name="start"></div></td>
+	    <td><div class="form-group"><input type="text" class="form-control" placeholder="Position" name="position"></div></td>
+	    <td><div class="form-group"><input type="text" class="form-control" placeholder="No." name="number"></div></td>
 	    <input type="hidden" value="<%= user.Jobs[i].id %>" name="jobId">
 	    <td class="text-right">
-	      <button type="submit" class="btn btn-sm btn-primary">
+	      <button type="submit" class="btn btn btn-primary">
 		<span class="fui-plus"></span>
 	      </button>
 	    </td>
@@ -155,7 +351,12 @@ console.log(diff);
       </table>
     </div>
   </form>
+
+</td></tr>
 <% } %>
+
+</table>
+
 <% } %>
 </div>
 
@@ -177,7 +378,7 @@ console.log(diff);
 	    <div class="col-sm-5 no-gutter">
               <div class="col-xs-4"><input type="integer" class="form-control" placeholder="dd" name="day"></div>
               <div class="col-xs-4"><input type="integer" class="form-control" placeholder="mm" name="month"></div>
-              <div class="col-xs-4"><input type="integer" class="form-control" placeholder="year" name="year"></div>
+              <div class="col-xs-4"><input type="integer" class="form-control" placeholder="year" value="<%= humanize.date('Y', new Date()) %>" name="year"></div>
 	    </div>
 
 	    <label class="col-sm-1" for="time">Arrival</label>

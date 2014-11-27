@@ -52,7 +52,7 @@
   <div class="row">
     <div class="col-xs-12">
 
-      <form class="form-horizontal" method="post" action="api/job/" role="form">
+      <form class="form-horizontal" method="post" action="/api/job/" role="form">
         <div class="login-form">
 
           <h5>New job</h5>
@@ -63,7 +63,7 @@
             <div class="col-sm-5 no-gutter">
               <div class="col-xs-4"><input type="integer" class="form-control" placeholder="dd" name="day"></div>
               <div class="col-xs-4"><input type="integer" class="form-control" placeholder="mm" name="month"></div>
-              <div class="col-xs-4"><input type="integer" class="form-control" placeholder="year" name="year"></div>
+              <div class="col-xs-4"><input type="integer" class="form-control" placeholder="year" value="<%= humanize.date('Y', new Date()) %>" name="year"></div>
             </div>
 
             <label class="col-sm-1" for="time">Arrival</label>
@@ -72,7 +72,6 @@
             </div>
 
           </div>
-
 
           <div class="form-group sm-mb">
 
@@ -101,7 +100,7 @@
             </div>
           </div>
 
-          <input type="hidden" value="dash" name="redirect">
+          <input type="hidden" value="job" name="redirect">
 
           <div class="row">
             <div class="col-sm-6 col-sm-offset-3">
@@ -115,3 +114,67 @@
     </div>
   </div>
 </div>
+
+<script>
+var clientBlood = new Bloodhound({
+  datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  local: [
+    <% for(var m=0; m<user.Clients.length; m++) { %>
+      { name: '<%= user.Clients[m].name %>' },
+    <% } %>
+  ],
+});
+
+var locationBlood = new Bloodhound({
+  datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  local: [
+    <% for(var m=0; m<user.Locations.length; m++) { %>
+      { name: '<%= user.Locations[m].name %>' },
+    <% } %>
+  ],
+});
+
+var eventBlood = new Bloodhound({
+  datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  local: [
+    <% for(var m=0; m<user.EventTypes.length; m++) { %>
+      { name: '<%= user.EventTypes[m].name %>' },
+    <% } %>
+  ],
+});
+
+clientBlood.initialize();
+locationBlood.initialize();
+eventBlood.initialize();
+
+$('[name="client"]').typeahead({
+  highlight: true
+},
+{
+  name: 'client',
+  displayKey: 'name',
+  source: clientBlood.ttAdapter(),
+});
+
+$('[name="location"]').typeahead({
+  highlight: true
+},
+{
+  name: 'location',
+  displayKey: 'name',
+  source: locationBlood.ttAdapter(),
+});
+
+$('[name="eventType"]').typeahead({
+  highlight: true
+},
+{
+  name: 'eventType',
+  displayKey: 'name',
+  source: eventBlood.ttAdapter(),
+});
+
+</script>

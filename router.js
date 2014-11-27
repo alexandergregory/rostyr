@@ -2,8 +2,6 @@ var async   = require('async');
 var _       = require('underscore');
 var routes  = require('./routes');
 var user    = require('./routes/user');
-var dash    = require('./routes/dash');
-var job     = require('./routes/job');
 var staff   = require('./routes/staff');
 var db      = require('./models');
 
@@ -28,7 +26,7 @@ module.exports = function(app, router, passport) {
 	    , phone = reqx.phone
 	    ;
 
-	    db.Staff.create({ firstName: firstName, lastName: lastName, email: email, phone: phone }).success(function(staff) {
+	    db.Staff.create({ firstName: firstName, lastName: lastName, email: email, phone: phone }).then(function(staff) {
 
 		staff.setUser(req.user);
 
@@ -45,10 +43,9 @@ module.exports = function(app, router, passport) {
 			req.user.addPosition(position); // ONLY DO THIS IF USER DOESN'T ALREADY HAVE THE POSITION??
 			cb();
 		    });
-		}, function(err) {
-			console.log(err);
-			req.flash('message', 'New staff member added successfully');		    
-			res.redirect('/staff');
+		}, function() {
+		    req.flash('message', 'New staff member added successfully');		    
+		    res.redirect('/staff');
 		});
 
 	    });
@@ -58,11 +55,56 @@ module.exports = function(app, router, passport) {
     router.route('/staff/:id')
 
 	.post(ensureAuthenticated, function(req, res) {
-	    db.Staff.find(req.param('id')).success(function(staff) {
-		staff.updateAttributes({ firstName: req.body.fName, lastName: lName, email: req.body.email, phone: req.body.phone }).success(function() {
+	    db.Staff.find({ where: { id: req.param('id') }, include: [ db.Position ] }).then(function(staff) {
+		staff.updateAttributes({ firstName: req.body.fName, lastName: req.body.lName, email: req.body.email, phone: req.body.phone }).then(function() {
 
-		    // UPDATE STAFF POSITIONS
+		    console.log(req.body.position);
 
+		    var positions = req.body.position.split(',');
+
+		    console.log(positions);
+
+		    var existPos = _.pluck(staff.Positions, 'name');
+		    console.log(existPos);
+
+		    var add = _.difference(positions, existPos);
+		    console.log(add);
+
+		    var subtract = _.difference(existPos, positions);
+		    console.log(subtract);
+
+
+		    async.parallel([
+			function(cback) {
+			    async.each(add, function(pos, cb) {
+				console.log('here we are at the add section');
+				addPosition(pos, function(err, position) {
+				    if(err) { console.log(err); cb(err) }
+				    staff.addPosition(position);
+				    req.user.addPosition(position); // ONLY DO THIS IF USER DOESN'T ALREADY HAVE THE POSITION??
+				    cb();
+				});
+			    }, function() {
+				cback();
+			    });
+			},
+			function(cback) {
+			    async.each(subtract, function(pos, cb) {
+				console.log('here we are at the subtract section');
+				db.Position.find({ where: { name: pos } }).then(function(position) {
+				    staff.removePosition(position);
+				    cb();
+				});
+			    }, function() {
+				cback();
+			    });
+			}
+		    ], function() {
+			
+			req.flash('message', 'Staff member updated successfully');		    
+			res.redirect('/staff');
+
+		    })
 		});
 	    });
 	});
@@ -71,8 +113,8 @@ module.exports = function(app, router, passport) {
 
 	.get(ensureAuthenticated, function(req, res) {
 
-	    db.Staff.find(req.param('id')).success(function(staff) {
-		staff.destroy().success(function() {
+	    db.Staff.find(req.param('id')).then(function(staff) {
+		staff.destroy().then(function() {
 		    req.flash('message', 'Staff member removed successfully');
 		    res.redirect('/staff');
 		});
@@ -106,7 +148,7 @@ module.exports = function(app, router, passport) {
 	    , redirect = reqx.redirect
             ;
 
-            db.Job.create({ date: date, pax: pax }).success(function(job) {
+            db.Job.create({ date: date, pax: pax }).then(function(job) {
 
 		req.user.addJob(job);
 
@@ -172,8 +214,8 @@ module.exports = function(app, router, passport) {
 
 	    var redirect = req.query.redirect;
 
-	    db.Job.find(req.param('id')).success(function(job) {
-		job.destroy().success(function() {
+	    db.Job.find(req.param('id')).then(function(job) {
+		job.destroy().then(function() {
 		    req.flash('message', 'Job deleted');
 		    if(redirect == 'dash') { res.redirect('/dash') } else { res.redirect('/job') }
 		});
@@ -195,11 +237,11 @@ module.exports = function(app, router, passport) {
 	    console.log(req.body.start);
 	    console.log(req.body.number);
 
-	    db.Job.find(req.body.jobId).success(function(job) {
+	    db.Job.find(req.body.jobId).then(function(job) {
 
 		// get number of bookings
 		for(var i = 0; i < req.body.number; i++) {
-		    db.Booking.create({ start: req.body.start, position: req.body.position }).success(function(booking) {
+		    db.Booking.create({ start: req.body.start, position: req.body.position }).then(function(booking) {
 
 			booking.setJob(job);
 
@@ -213,7 +255,7 @@ module.exports = function(app, router, passport) {
 
     // get all the bookings (accessed at GET http://something:8080/api/bookings)
 	.get(function(req, res) {
-	    db.Job.find({ where: { id: req.param('jobs_id') }, include: [ db.Booking ] }).success(function(job) {
+	    db.Job.find({ where: { id: req.param('jobs_id') }, include: [ db.Booking ] }).then(function(job) {
 		res.json(job.Bookings);
 	    });
 	});
@@ -228,7 +270,7 @@ module.exports = function(app, router, passport) {
 
     router.route('/find/client')
 	.get(function(req, res) {
-	    db.Client.findAll().success(function(clients) {
+	    db.Client.findAll().then(function(clients) {
 		console.log(clients.name);
 		res.send(clients);
 	    });
@@ -237,7 +279,7 @@ module.exports = function(app, router, passport) {
 
     router.route('/find/location')
 	.get(function(req, res) {
-		db.Location.findAll().success(function(locs) {
+		db.Location.findAll().then(function(locs) {
 		    console.logs(locs.name);
 		    res.send(locs);
 		});	    
@@ -264,10 +306,10 @@ module.exports = function(app, router, passport) {
 
     app.post('/user/update', ensureAuthenticated, user.update);
 
-    app.get('/dash', ensureAuthenticated, dash.index);
+    app.get('/dash', ensureAuthenticated, routes.dash);
 
-    app.get('/account', ensureAuthenticated, dash.account);
-    app.get('/job', ensureAuthenticated, job.index);
+    app.get('/account', ensureAuthenticated, routes.account);
+    app.get('/job', ensureAuthenticated, routes.job);
     app.get('/staff', ensureAuthenticated, staff.index);
 
     app.get('/login', function(req, res) {
@@ -293,32 +335,32 @@ module.exports = function(app, router, passport) {
     }
 
     var addObject = function(obj, typ, cb) {
-	typ.find({ where: { name: obj } }).success(function(object) {
+	typ.find({ where: { name: obj } }).then(function(object) {
 	    if(object) {
 		cb(object);
 	    } else {
 		var new_obj = typ.build({
 		    name: obj
 		});
-		new_obj.save().success(function(object) {
+		new_obj.save().then(function(object) {
 		    cb(object);
-		}).error(function(err) {
+		}).catch(function(err) {
 		    cb(err);
 		});
 	    }
 	});
     }
     var addPosition = function(pos, cb) { // THIS FUNCTION CAN BE MERGED INTO THE ADDOBJECT FUNCTION ABOVE
-	db.Position.find({ where: { name: pos } }).success(function(position) {
+	db.Position.find({ where: { name: pos } }).then(function(position) {
             if(position) {
 		cb(null, position);
             } else {
 		var new_pos = db.Position.build({
                     name: pos
 		});
-		new_pos.save().success(function(position) {
+		new_pos.save().then(function(position) {
                     cb(null, position);
-		}).error(function(err) {
+		}).catch(function(err) {
                     cb(err, position);
 		});
             }

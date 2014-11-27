@@ -10,9 +10,9 @@ module.exports = function(passport) {
     });
 
     passport.deserializeUser(function(id, done) {
-	db.User.find({where: {id: id}}).success(function(user){
+	db.User.find({where: {id: id}}).then(function(user){
 	    done(null, user);
-	}).error(function(err){
+	}).catch(function(err){
 	    done(err, null);
 	});
     });
@@ -23,16 +23,16 @@ module.exports = function(passport) {
 	passReqToCallback: true
     }, function(req, email, pass, done) {
 	process.nextTick(function () {
-	    db.User.find({ where: { email: email } }).success(function(user) {
+	    db.User.find({ where: { email: email } }).then(function(user) {
 		if (!user) {
 		    // console.log('user not matched');
 		    return done(null, false, { message: 'Unknown user ' + username });
 		}
 		user.pass = user.generateHash(pass);
-		user.save().success(function(user) {
+		user.save().then(function(user) {
 		    return done(null, user);
 		});
-	    }).error(function(err) {
+	    }).catch(function(err) {
 		console.log(err);
 		res.redirect('/');
 	    });
@@ -45,7 +45,7 @@ module.exports = function(passport) {
     	passReqToCallback: true
     }, function(req, email, pass, done) {
 	process.nextTick(function () {
-            db.User.find({ where: { email: email } }).success(function(user) {
+            db.User.find({ where: { email: email } }).then(function(user) {
                 if (!user) {
                     return done(null, false, { message: 'Invalid email or password' });
                 }
@@ -53,7 +53,7 @@ module.exports = function(passport) {
 		    return done(null, false, { message: 'Invalid email or password' });
 		}
 		return done(null, user);
-            }).error(function(err) {
+            }).catch(function(err) {
                 console.log(err); 
                 res.redirect('/');
             });
