@@ -1,0 +1,1138 @@
+--
+-- PostgreSQL database dump
+--
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+SET search_path = public, pg_catalog;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: Asks; Type: TABLE; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+CREATE TABLE "Asks" (
+    id integer NOT NULL,
+    "dateEmailed" timestamp with time zone,
+    "dateRespond" timestamp with time zone,
+    accepted boolean,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL,
+    "StaffId" integer,
+    "BookingId" integer
+);
+
+
+ALTER TABLE public."Asks" OWNER TO ubuntu;
+
+--
+-- Name: Asks_id_seq; Type: SEQUENCE; Schema: public; Owner: ubuntu
+--
+
+CREATE SEQUENCE "Asks_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."Asks_id_seq" OWNER TO ubuntu;
+
+--
+-- Name: Asks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ubuntu
+--
+
+ALTER SEQUENCE "Asks_id_seq" OWNED BY "Asks".id;
+
+
+--
+-- Name: Bookings; Type: TABLE; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+CREATE TABLE "Bookings" (
+    id integer NOT NULL,
+    start character varying(255) NOT NULL,
+    "position" character varying(255) NOT NULL,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL,
+    "JobId" integer
+);
+
+
+ALTER TABLE public."Bookings" OWNER TO ubuntu;
+
+--
+-- Name: Bookings_id_seq; Type: SEQUENCE; Schema: public; Owner: ubuntu
+--
+
+CREATE SEQUENCE "Bookings_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."Bookings_id_seq" OWNER TO ubuntu;
+
+--
+-- Name: Bookings_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ubuntu
+--
+
+ALTER SEQUENCE "Bookings_id_seq" OWNED BY "Bookings".id;
+
+
+--
+-- Name: Clients; Type: TABLE; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+CREATE TABLE "Clients" (
+    id integer NOT NULL,
+    name character varying(255),
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public."Clients" OWNER TO ubuntu;
+
+--
+-- Name: ClientsUsers; Type: TABLE; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+CREATE TABLE "ClientsUsers" (
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL,
+    "UserId" integer NOT NULL,
+    "ClientId" integer NOT NULL
+);
+
+
+ALTER TABLE public."ClientsUsers" OWNER TO ubuntu;
+
+--
+-- Name: Clients_id_seq; Type: SEQUENCE; Schema: public; Owner: ubuntu
+--
+
+CREATE SEQUENCE "Clients_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."Clients_id_seq" OWNER TO ubuntu;
+
+--
+-- Name: Clients_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ubuntu
+--
+
+ALTER SEQUENCE "Clients_id_seq" OWNED BY "Clients".id;
+
+
+--
+-- Name: EventTypes; Type: TABLE; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+CREATE TABLE "EventTypes" (
+    id integer NOT NULL,
+    name character varying(255),
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public."EventTypes" OWNER TO ubuntu;
+
+--
+-- Name: EventTypesUsers; Type: TABLE; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+CREATE TABLE "EventTypesUsers" (
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL,
+    "UserId" integer NOT NULL,
+    "EventTypeId" integer NOT NULL
+);
+
+
+ALTER TABLE public."EventTypesUsers" OWNER TO ubuntu;
+
+--
+-- Name: EventTypes_id_seq; Type: SEQUENCE; Schema: public; Owner: ubuntu
+--
+
+CREATE SEQUENCE "EventTypes_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."EventTypes_id_seq" OWNER TO ubuntu;
+
+--
+-- Name: EventTypes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ubuntu
+--
+
+ALTER SEQUENCE "EventTypes_id_seq" OWNED BY "EventTypes".id;
+
+
+--
+-- Name: Jobs; Type: TABLE; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+CREATE TABLE "Jobs" (
+    id integer NOT NULL,
+    date timestamp with time zone,
+    pax integer,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL,
+    "ClientId" integer,
+    "EventTypeId" integer,
+    "LocationId" integer,
+    "UserId" integer
+);
+
+
+ALTER TABLE public."Jobs" OWNER TO ubuntu;
+
+--
+-- Name: Jobs_id_seq; Type: SEQUENCE; Schema: public; Owner: ubuntu
+--
+
+CREATE SEQUENCE "Jobs_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."Jobs_id_seq" OWNER TO ubuntu;
+
+--
+-- Name: Jobs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ubuntu
+--
+
+ALTER SEQUENCE "Jobs_id_seq" OWNED BY "Jobs".id;
+
+
+--
+-- Name: Locations; Type: TABLE; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+CREATE TABLE "Locations" (
+    id integer NOT NULL,
+    name character varying(255),
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public."Locations" OWNER TO ubuntu;
+
+--
+-- Name: LocationsUsers; Type: TABLE; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+CREATE TABLE "LocationsUsers" (
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL,
+    "UserId" integer NOT NULL,
+    "LocationId" integer NOT NULL
+);
+
+
+ALTER TABLE public."LocationsUsers" OWNER TO ubuntu;
+
+--
+-- Name: Locations_id_seq; Type: SEQUENCE; Schema: public; Owner: ubuntu
+--
+
+CREATE SEQUENCE "Locations_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."Locations_id_seq" OWNER TO ubuntu;
+
+--
+-- Name: Locations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ubuntu
+--
+
+ALTER SEQUENCE "Locations_id_seq" OWNED BY "Locations".id;
+
+
+--
+-- Name: Positions; Type: TABLE; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+CREATE TABLE "Positions" (
+    id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public."Positions" OWNER TO ubuntu;
+
+--
+-- Name: PositionsStaffs; Type: TABLE; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+CREATE TABLE "PositionsStaffs" (
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL,
+    "StaffId" integer NOT NULL,
+    "PositionId" integer NOT NULL
+);
+
+
+ALTER TABLE public."PositionsStaffs" OWNER TO ubuntu;
+
+--
+-- Name: PositionsUsers; Type: TABLE; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+CREATE TABLE "PositionsUsers" (
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL,
+    "UserId" integer NOT NULL,
+    "PositionId" integer NOT NULL
+);
+
+
+ALTER TABLE public."PositionsUsers" OWNER TO ubuntu;
+
+--
+-- Name: Positions_id_seq; Type: SEQUENCE; Schema: public; Owner: ubuntu
+--
+
+CREATE SEQUENCE "Positions_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."Positions_id_seq" OWNER TO ubuntu;
+
+--
+-- Name: Positions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ubuntu
+--
+
+ALTER SEQUENCE "Positions_id_seq" OWNED BY "Positions".id;
+
+
+--
+-- Name: Roles; Type: TABLE; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+CREATE TABLE "Roles" (
+    id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public."Roles" OWNER TO ubuntu;
+
+--
+-- Name: RolesUsers; Type: TABLE; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+CREATE TABLE "RolesUsers" (
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL,
+    "UserId" integer NOT NULL,
+    "RoleId" integer NOT NULL
+);
+
+
+ALTER TABLE public."RolesUsers" OWNER TO ubuntu;
+
+--
+-- Name: Roles_id_seq; Type: SEQUENCE; Schema: public; Owner: ubuntu
+--
+
+CREATE SEQUENCE "Roles_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."Roles_id_seq" OWNER TO ubuntu;
+
+--
+-- Name: Roles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ubuntu
+--
+
+ALTER SEQUENCE "Roles_id_seq" OWNED BY "Roles".id;
+
+
+--
+-- Name: Staffs; Type: TABLE; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+CREATE TABLE "Staffs" (
+    id integer NOT NULL,
+    "firstName" character varying(255),
+    "lastName" character varying(255),
+    "callSign" character varying(255),
+    email character varying(255) NOT NULL,
+    phone character varying(255),
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL,
+    "UserId" integer
+);
+
+
+ALTER TABLE public."Staffs" OWNER TO ubuntu;
+
+--
+-- Name: Staffs_id_seq; Type: SEQUENCE; Schema: public; Owner: ubuntu
+--
+
+CREATE SEQUENCE "Staffs_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."Staffs_id_seq" OWNER TO ubuntu;
+
+--
+-- Name: Staffs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ubuntu
+--
+
+ALTER SEQUENCE "Staffs_id_seq" OWNED BY "Staffs".id;
+
+
+--
+-- Name: Users; Type: TABLE; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+CREATE TABLE "Users" (
+    id integer NOT NULL,
+    "firstName" character varying(255) NOT NULL,
+    "lastName" character varying(255) NOT NULL,
+    email character varying(255) NOT NULL,
+    token character varying(255) NOT NULL,
+    pass character varying(255),
+    active boolean DEFAULT false,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public."Users" OWNER TO ubuntu;
+
+--
+-- Name: Users_id_seq; Type: SEQUENCE; Schema: public; Owner: ubuntu
+--
+
+CREATE SEQUENCE "Users_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."Users_id_seq" OWNER TO ubuntu;
+
+--
+-- Name: Users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ubuntu
+--
+
+ALTER SEQUENCE "Users_id_seq" OWNED BY "Users".id;
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "Asks" ALTER COLUMN id SET DEFAULT nextval('"Asks_id_seq"'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "Bookings" ALTER COLUMN id SET DEFAULT nextval('"Bookings_id_seq"'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "Clients" ALTER COLUMN id SET DEFAULT nextval('"Clients_id_seq"'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "EventTypes" ALTER COLUMN id SET DEFAULT nextval('"EventTypes_id_seq"'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "Jobs" ALTER COLUMN id SET DEFAULT nextval('"Jobs_id_seq"'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "Locations" ALTER COLUMN id SET DEFAULT nextval('"Locations_id_seq"'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "Positions" ALTER COLUMN id SET DEFAULT nextval('"Positions_id_seq"'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "Roles" ALTER COLUMN id SET DEFAULT nextval('"Roles_id_seq"'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "Staffs" ALTER COLUMN id SET DEFAULT nextval('"Staffs_id_seq"'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "Users" ALTER COLUMN id SET DEFAULT nextval('"Users_id_seq"'::regclass);
+
+
+--
+-- Data for Name: Asks; Type: TABLE DATA; Schema: public; Owner: ubuntu
+--
+
+COPY "Asks" (id, "dateEmailed", "dateRespond", accepted, "createdAt", "updatedAt", "StaffId", "BookingId") FROM stdin;
+20	\N	\N	\N	2014-12-02 09:20:53.725+00	2014-12-02 09:20:53.771+00	2	22
+21	\N	\N	\N	2014-12-02 09:20:53.725+00	2014-12-02 09:20:53.775+00	3	23
+22	\N	\N	\N	2014-12-02 09:20:53.725+00	2014-12-02 09:20:53.78+00	4	24
+23	\N	\N	\N	2014-12-02 09:20:53.725+00	2014-12-02 09:20:53.786+00	6	25
+24	\N	\N	\N	2014-12-02 09:20:53.725+00	2014-12-02 09:20:53.792+00	5	26
+19	\N	\N	t	2014-12-02 09:20:53.725+00	2014-12-02 09:20:53.765+00	1	21
+\.
+
+
+--
+-- Name: Asks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ubuntu
+--
+
+SELECT pg_catalog.setval('"Asks_id_seq"', 24, true);
+
+
+--
+-- Data for Name: Bookings; Type: TABLE DATA; Schema: public; Owner: ubuntu
+--
+
+COPY "Bookings" (id, start, "position", "createdAt", "updatedAt", "JobId") FROM stdin;
+21	1600	Supervisor	2014-12-02 09:19:56.362+00	2014-12-02 09:19:56.366+00	7
+22	1630	Barstaff	2014-12-02 09:20:12.665+00	2014-12-02 09:20:12.671+00	7
+23	1630	Barstaff	2014-12-02 09:20:12.665+00	2014-12-02 09:20:12.675+00	7
+24	1630	Barstaff	2014-12-02 09:20:12.665+00	2014-12-02 09:20:12.681+00	7
+25	1700	Waitstaff	2014-12-02 09:20:30.223+00	2014-12-02 09:20:30.23+00	7
+26	1700	Waitstaff	2014-12-02 09:20:30.223+00	2014-12-02 09:20:30.233+00	7
+27	1500	Supervisor	2014-12-02 09:26:51.081+00	2014-12-02 09:26:51.089+00	8
+\.
+
+
+--
+-- Name: Bookings_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ubuntu
+--
+
+SELECT pg_catalog.setval('"Bookings_id_seq"', 27, true);
+
+
+--
+-- Data for Name: Clients; Type: TABLE DATA; Schema: public; Owner: ubuntu
+--
+
+COPY "Clients" (id, name, "createdAt", "updatedAt") FROM stdin;
+1	Leon	2014-11-17 01:23:01.834+00	2014-11-17 01:23:01.834+00
+2	Ella	2014-11-17 06:31:07.1+00	2014-11-17 06:31:07.1+00
+3	Paul	2014-11-28 01:16:43.741+00	2014-11-28 01:16:43.741+00
+\.
+
+
+--
+-- Data for Name: ClientsUsers; Type: TABLE DATA; Schema: public; Owner: ubuntu
+--
+
+COPY "ClientsUsers" ("createdAt", "updatedAt", "UserId", "ClientId") FROM stdin;
+2014-11-29 02:02:21.959+00	2014-11-29 02:02:21.959+00	1	1
+2014-11-29 02:02:47.477+00	2014-11-29 02:02:47.477+00	1	3
+\.
+
+
+--
+-- Name: Clients_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ubuntu
+--
+
+SELECT pg_catalog.setval('"Clients_id_seq"', 3, true);
+
+
+--
+-- Data for Name: EventTypes; Type: TABLE DATA; Schema: public; Owner: ubuntu
+--
+
+COPY "EventTypes" (id, name, "createdAt", "updatedAt") FROM stdin;
+1	Dinner	2014-11-17 01:23:01.849+00	2014-11-17 01:23:01.849+00
+2	Cocktail	2014-11-27 12:22:53.096+00	2014-11-27 12:22:53.096+00
+\.
+
+
+--
+-- Data for Name: EventTypesUsers; Type: TABLE DATA; Schema: public; Owner: ubuntu
+--
+
+COPY "EventTypesUsers" ("createdAt", "updatedAt", "UserId", "EventTypeId") FROM stdin;
+2014-11-29 02:02:21.97+00	2014-11-29 02:02:21.97+00	1	1
+2014-11-29 02:02:47.488+00	2014-11-29 02:02:47.488+00	1	2
+\.
+
+
+--
+-- Name: EventTypes_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ubuntu
+--
+
+SELECT pg_catalog.setval('"EventTypes_id_seq"', 2, true);
+
+
+--
+-- Data for Name: Jobs; Type: TABLE DATA; Schema: public; Owner: ubuntu
+--
+
+COPY "Jobs" (id, date, pax, "createdAt", "updatedAt", "ClientId", "EventTypeId", "LocationId", "UserId") FROM stdin;
+7	2014-12-12 18:00:00+00	10	2014-11-29 02:02:21.919+00	2014-11-29 02:02:21.967+00	1	1	1	1
+8	2014-12-13 17:00:00+00	20	2014-11-29 02:02:47.44+00	2014-11-29 02:02:47.486+00	3	2	2	1
+\.
+
+
+--
+-- Name: Jobs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ubuntu
+--
+
+SELECT pg_catalog.setval('"Jobs_id_seq"', 8, true);
+
+
+--
+-- Data for Name: Locations; Type: TABLE DATA; Schema: public; Owner: ubuntu
+--
+
+COPY "Locations" (id, name, "createdAt", "updatedAt") FROM stdin;
+1	Museum	2014-11-17 01:23:01.841+00	2014-11-17 01:23:01.841+00
+2	Art Gallery	2014-11-17 06:31:07.105+00	2014-11-17 06:31:07.105+00
+\.
+
+
+--
+-- Data for Name: LocationsUsers; Type: TABLE DATA; Schema: public; Owner: ubuntu
+--
+
+COPY "LocationsUsers" ("createdAt", "updatedAt", "UserId", "LocationId") FROM stdin;
+2014-11-29 02:02:21.965+00	2014-11-29 02:02:21.965+00	1	1
+2014-11-29 02:02:47.483+00	2014-11-29 02:02:47.483+00	1	2
+\.
+
+
+--
+-- Name: Locations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ubuntu
+--
+
+SELECT pg_catalog.setval('"Locations_id_seq"', 2, true);
+
+
+--
+-- Data for Name: Positions; Type: TABLE DATA; Schema: public; Owner: ubuntu
+--
+
+COPY "Positions" (id, name, "createdAt", "updatedAt") FROM stdin;
+1	Supervisor	2014-11-17 07:15:43.327+00	2014-11-17 07:15:43.327+00
+2	Waitstaff	2014-11-17 07:15:43.331+00	2014-11-17 07:15:43.331+00
+3	Barstaff	2014-11-17 07:15:43.337+00	2014-11-17 07:15:43.337+00
+4	Chef	2014-11-27 01:24:02.175+00	2014-11-27 01:24:02.175+00
+5		2014-12-02 09:18:45.505+00	2014-12-02 09:18:45.505+00
+\.
+
+
+--
+-- Data for Name: PositionsStaffs; Type: TABLE DATA; Schema: public; Owner: ubuntu
+--
+
+COPY "PositionsStaffs" ("createdAt", "updatedAt", "StaffId", "PositionId") FROM stdin;
+2014-12-02 09:14:45.432+00	2014-12-02 09:14:45.432+00	1	1
+2014-12-02 09:14:45.444+00	2014-12-02 09:14:45.444+00	1	3
+2014-12-02 09:14:45.45+00	2014-12-02 09:14:45.45+00	1	2
+2014-12-02 09:15:12.473+00	2014-12-02 09:15:12.473+00	2	3
+2014-12-02 09:17:38.19+00	2014-12-02 09:17:38.19+00	3	1
+2014-12-02 09:17:38.193+00	2014-12-02 09:17:38.193+00	3	2
+2014-12-02 09:17:38.198+00	2014-12-02 09:17:38.198+00	3	3
+2014-12-02 09:17:38.201+00	2014-12-02 09:17:38.201+00	3	4
+2014-12-02 09:17:55.629+00	2014-12-02 09:17:55.629+00	4	1
+2014-12-02 09:17:55.637+00	2014-12-02 09:17:55.637+00	4	2
+2014-12-02 09:17:55.641+00	2014-12-02 09:17:55.641+00	4	3
+2014-12-02 09:18:12.96+00	2014-12-02 09:18:12.96+00	5	2
+2014-12-02 09:18:30.382+00	2014-12-02 09:18:30.382+00	6	2
+2014-12-02 09:18:45.518+00	2014-12-02 09:18:45.518+00	7	5
+2014-12-02 09:19:07.955+00	2014-12-02 09:19:07.955+00	8	3
+2014-12-02 09:19:07.967+00	2014-12-02 09:19:07.967+00	8	2
+2014-12-02 09:19:37.256+00	2014-12-02 09:19:37.256+00	9	3
+2014-12-02 09:19:37.264+00	2014-12-02 09:19:37.264+00	9	2
+\.
+
+
+--
+-- Data for Name: PositionsUsers; Type: TABLE DATA; Schema: public; Owner: ubuntu
+--
+
+COPY "PositionsUsers" ("createdAt", "updatedAt", "UserId", "PositionId") FROM stdin;
+2014-11-29 01:55:43.392+00	2014-11-29 01:55:43.392+00	1	1
+2014-11-29 01:55:43.399+00	2014-11-29 01:55:43.399+00	1	3
+2014-11-29 01:55:43.406+00	2014-11-29 01:55:43.406+00	1	2
+2014-11-29 01:57:57.493+00	2014-11-29 01:57:57.493+00	1	4
+2014-12-02 09:18:45.52+00	2014-12-02 09:18:45.52+00	1	5
+\.
+
+
+--
+-- Name: Positions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ubuntu
+--
+
+SELECT pg_catalog.setval('"Positions_id_seq"', 5, true);
+
+
+--
+-- Data for Name: Roles; Type: TABLE DATA; Schema: public; Owner: ubuntu
+--
+
+COPY "Roles" (id, name, "createdAt", "updatedAt") FROM stdin;
+1	admin	2014-11-29 00:00:00+00	2014-11-29 00:00:00+00
+2	user	2014-11-29 00:00:00+00	2014-11-29 00:00:00+00
+\.
+
+
+--
+-- Data for Name: RolesUsers; Type: TABLE DATA; Schema: public; Owner: ubuntu
+--
+
+COPY "RolesUsers" ("createdAt", "updatedAt", "UserId", "RoleId") FROM stdin;
+\.
+
+
+--
+-- Name: Roles_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ubuntu
+--
+
+SELECT pg_catalog.setval('"Roles_id_seq"', 1, false);
+
+
+--
+-- Data for Name: Staffs; Type: TABLE DATA; Schema: public; Owner: ubuntu
+--
+
+COPY "Staffs" (id, "firstName", "lastName", "callSign", email, phone, "createdAt", "updatedAt", "UserId") FROM stdin;
+1	Leon	Stirk-Wang	\N	leon.stirkwang@gmail.com	+64210342105	2014-12-02 09:14:45.379+00	2014-12-02 09:14:45.391+00	1
+2	Ella	Mangan-Walker	\N	ella@rostyr.co	0210001234	2014-12-02 09:15:12.453+00	2014-12-02 09:15:12.458+00	1
+3	Leo	Moore	\N	leo@rostyr.co	0210001234	2014-12-02 09:17:38.142+00	2014-12-02 09:17:38.15+00	1
+4	Marvin	Opinion	\N	marvin@rostyr.co	0210342105	2014-12-02 09:17:55.599+00	2014-12-02 09:17:55.604+00	1
+5	Nina	Turnbull	\N	nina@rostyr.co	0210001234	2014-12-02 09:18:12.941+00	2014-12-02 09:18:12.946+00	1
+6	Eddie	Scoular	\N	eddie@rostyr.com	0210001234	2014-12-02 09:18:30.365+00	2014-12-02 09:18:30.369+00	1
+7	Sophie	Joy	\N	sophie@rostyr.co	0210001234	2014-12-02 09:18:45.497+00	2014-12-02 09:18:45.501+00	1
+8	Courtney	Smith	\N	courtney@rostyr.co	0210001234	2014-12-02 09:19:07.932+00	2014-12-02 09:19:07.938+00	1
+9	Alex	Biggs	\N	alex@rostyr.co	0210001234	2014-12-02 09:19:37.23+00	2014-12-02 09:19:37.235+00	1
+\.
+
+
+--
+-- Name: Staffs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ubuntu
+--
+
+SELECT pg_catalog.setval('"Staffs_id_seq"', 9, true);
+
+
+--
+-- Data for Name: Users; Type: TABLE DATA; Schema: public; Owner: ubuntu
+--
+
+COPY "Users" (id, "firstName", "lastName", email, token, pass, active, "createdAt", "updatedAt") FROM stdin;
+1	Leon	Stirk-Wang	leon.stirkwang@gmail.com	$2a$10$R.KNdJ/pX4kJGSiJ8Xc9uu	$2a$10$SA8pphAGx.I62HSxHe/kwefi6JXrUKndk3xDqXdcD8RM3ku91xs3C	t	2014-11-17 01:19:11.789+00	2014-11-17 01:22:02.241+00
+\.
+
+
+--
+-- Name: Users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ubuntu
+--
+
+SELECT pg_catalog.setval('"Users_id_seq"', 1, true);
+
+
+--
+-- Name: Asks_pkey; Type: CONSTRAINT; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+ALTER TABLE ONLY "Asks"
+    ADD CONSTRAINT "Asks_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Bookings_pkey; Type: CONSTRAINT; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+ALTER TABLE ONLY "Bookings"
+    ADD CONSTRAINT "Bookings_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: ClientsUsers_pkey; Type: CONSTRAINT; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+ALTER TABLE ONLY "ClientsUsers"
+    ADD CONSTRAINT "ClientsUsers_pkey" PRIMARY KEY ("UserId", "ClientId");
+
+
+--
+-- Name: Clients_pkey; Type: CONSTRAINT; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+ALTER TABLE ONLY "Clients"
+    ADD CONSTRAINT "Clients_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: EventTypesUsers_pkey; Type: CONSTRAINT; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+ALTER TABLE ONLY "EventTypesUsers"
+    ADD CONSTRAINT "EventTypesUsers_pkey" PRIMARY KEY ("UserId", "EventTypeId");
+
+
+--
+-- Name: EventTypes_pkey; Type: CONSTRAINT; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+ALTER TABLE ONLY "EventTypes"
+    ADD CONSTRAINT "EventTypes_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Jobs_pkey; Type: CONSTRAINT; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+ALTER TABLE ONLY "Jobs"
+    ADD CONSTRAINT "Jobs_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: LocationsUsers_pkey; Type: CONSTRAINT; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+ALTER TABLE ONLY "LocationsUsers"
+    ADD CONSTRAINT "LocationsUsers_pkey" PRIMARY KEY ("UserId", "LocationId");
+
+
+--
+-- Name: Locations_pkey; Type: CONSTRAINT; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+ALTER TABLE ONLY "Locations"
+    ADD CONSTRAINT "Locations_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: PositionsStaffs_pkey; Type: CONSTRAINT; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+ALTER TABLE ONLY "PositionsStaffs"
+    ADD CONSTRAINT "PositionsStaffs_pkey" PRIMARY KEY ("StaffId", "PositionId");
+
+
+--
+-- Name: PositionsUsers_pkey; Type: CONSTRAINT; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+ALTER TABLE ONLY "PositionsUsers"
+    ADD CONSTRAINT "PositionsUsers_pkey" PRIMARY KEY ("UserId", "PositionId");
+
+
+--
+-- Name: Positions_pkey; Type: CONSTRAINT; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+ALTER TABLE ONLY "Positions"
+    ADD CONSTRAINT "Positions_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: RolesUsers_pkey; Type: CONSTRAINT; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+ALTER TABLE ONLY "RolesUsers"
+    ADD CONSTRAINT "RolesUsers_pkey" PRIMARY KEY ("UserId", "RoleId");
+
+
+--
+-- Name: Roles_pkey; Type: CONSTRAINT; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+ALTER TABLE ONLY "Roles"
+    ADD CONSTRAINT "Roles_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Staffs_pkey; Type: CONSTRAINT; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+ALTER TABLE ONLY "Staffs"
+    ADD CONSTRAINT "Staffs_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Users_email_key; Type: CONSTRAINT; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+ALTER TABLE ONLY "Users"
+    ADD CONSTRAINT "Users_email_key" UNIQUE (email);
+
+
+--
+-- Name: Users_pass_key; Type: CONSTRAINT; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+ALTER TABLE ONLY "Users"
+    ADD CONSTRAINT "Users_pass_key" UNIQUE (pass);
+
+
+--
+-- Name: Users_pkey; Type: CONSTRAINT; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+ALTER TABLE ONLY "Users"
+    ADD CONSTRAINT "Users_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Users_token_key; Type: CONSTRAINT; Schema: public; Owner: ubuntu; Tablespace: 
+--
+
+ALTER TABLE ONLY "Users"
+    ADD CONSTRAINT "Users_token_key" UNIQUE (token);
+
+
+--
+-- Name: Asks_BookingId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "Asks"
+    ADD CONSTRAINT "Asks_BookingId_fkey" FOREIGN KEY ("BookingId") REFERENCES "Bookings"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Asks_StaffId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "Asks"
+    ADD CONSTRAINT "Asks_StaffId_fkey" FOREIGN KEY ("StaffId") REFERENCES "Staffs"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Bookings_JobId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "Bookings"
+    ADD CONSTRAINT "Bookings_JobId_fkey" FOREIGN KEY ("JobId") REFERENCES "Jobs"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: ClientsUsers_ClientId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "ClientsUsers"
+    ADD CONSTRAINT "ClientsUsers_ClientId_fkey" FOREIGN KEY ("ClientId") REFERENCES "Clients"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: ClientsUsers_UserId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "ClientsUsers"
+    ADD CONSTRAINT "ClientsUsers_UserId_fkey" FOREIGN KEY ("UserId") REFERENCES "Users"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: EventTypesUsers_EventTypeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "EventTypesUsers"
+    ADD CONSTRAINT "EventTypesUsers_EventTypeId_fkey" FOREIGN KEY ("EventTypeId") REFERENCES "EventTypes"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: EventTypesUsers_UserId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "EventTypesUsers"
+    ADD CONSTRAINT "EventTypesUsers_UserId_fkey" FOREIGN KEY ("UserId") REFERENCES "Users"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: Jobs_ClientId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "Jobs"
+    ADD CONSTRAINT "Jobs_ClientId_fkey" FOREIGN KEY ("ClientId") REFERENCES "Clients"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Jobs_EventTypeId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "Jobs"
+    ADD CONSTRAINT "Jobs_EventTypeId_fkey" FOREIGN KEY ("EventTypeId") REFERENCES "EventTypes"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Jobs_LocationId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "Jobs"
+    ADD CONSTRAINT "Jobs_LocationId_fkey" FOREIGN KEY ("LocationId") REFERENCES "Locations"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: Jobs_UserId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "Jobs"
+    ADD CONSTRAINT "Jobs_UserId_fkey" FOREIGN KEY ("UserId") REFERENCES "Users"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: LocationsUsers_LocationId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "LocationsUsers"
+    ADD CONSTRAINT "LocationsUsers_LocationId_fkey" FOREIGN KEY ("LocationId") REFERENCES "Locations"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: LocationsUsers_UserId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "LocationsUsers"
+    ADD CONSTRAINT "LocationsUsers_UserId_fkey" FOREIGN KEY ("UserId") REFERENCES "Users"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: PositionsStaffs_PositionId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "PositionsStaffs"
+    ADD CONSTRAINT "PositionsStaffs_PositionId_fkey" FOREIGN KEY ("PositionId") REFERENCES "Positions"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: PositionsStaffs_StaffId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "PositionsStaffs"
+    ADD CONSTRAINT "PositionsStaffs_StaffId_fkey" FOREIGN KEY ("StaffId") REFERENCES "Staffs"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: PositionsUsers_PositionId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "PositionsUsers"
+    ADD CONSTRAINT "PositionsUsers_PositionId_fkey" FOREIGN KEY ("PositionId") REFERENCES "Positions"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: PositionsUsers_UserId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "PositionsUsers"
+    ADD CONSTRAINT "PositionsUsers_UserId_fkey" FOREIGN KEY ("UserId") REFERENCES "Users"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: RolesUsers_RoleId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "RolesUsers"
+    ADD CONSTRAINT "RolesUsers_RoleId_fkey" FOREIGN KEY ("RoleId") REFERENCES "Roles"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: RolesUsers_UserId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "RolesUsers"
+    ADD CONSTRAINT "RolesUsers_UserId_fkey" FOREIGN KEY ("UserId") REFERENCES "Users"(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: Staffs_UserId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ubuntu
+--
+
+ALTER TABLE ONLY "Staffs"
+    ADD CONSTRAINT "Staffs_UserId_fkey" FOREIGN KEY ("UserId") REFERENCES "Users"(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- PostgreSQL database dump complete
+--
+

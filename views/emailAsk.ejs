@@ -1,0 +1,22 @@
+<html>
+<body>
+
+<h1><%= title %></h1>
+
+<p>There is a job on the:</p>
+<p><%= date %></p>
+
+<p>It's a <%= pax %> pax <%= eventType %> at the <%= location %></p>
+
+<p>You've been rostered on as a <%= position %> for a <%= start %> start.</p>
+
+<p>Please let us know below if you'd like to accept or decline this shift</p>
+
+<a href="<%= url %>/api/ask?ask=<%= ask %>&token=<%= accept %>" ><p>Confirm shift</p></a>
+<a href="<%= url %>/api/ask?ask=<%= ask %>&token=<%= decline %>" ><p>Decline shift</p></a>
+
+<p>Regards</p>
+<p>The team at Rostyr</p>
+
+</body>
+</html>

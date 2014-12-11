@@ -1,8 +1,9 @@
 var async   = require('async');
 var _       = require('underscore');
+var humanize = require('humanize');
 var routes  = require('./routes');
 var user    = require('./routes/user');
-var staff   = require('./routes/staff');
+var tools   = require('./routes/tools');
 var db      = require('./models');
 
 module.exports = function(app, router, passport) {
@@ -264,6 +265,141 @@ module.exports = function(app, router, passport) {
 
 
 
+// === //
+// ASK //
+// === //
+
+    router.route('/ask')
+
+	.post(function(req, res) {
+
+// create all the ask associations linking staff and bookings according to allocations in the submitted form (Staffs ==> Asks ==> Bookings)
+
+	    Object.keys(req.body).forEach(function(key) { // for each booking field thats passed. keys are booking ids
+		console.log(key + ' ' + req.body[key]);
+
+// don't create the ask if there is already an ask for that booking/whatever
+// confirmed OR pending ask does not exist for the booking number (MUST BE FALSE OR NON-EXISTANT)
+
+		db.Booking.find({ where: { id: key }, include: [ db.Ask ] }).then(function(booking) { 
+
+		    var pendingAsks =  _.find(booking.Asks, function(ask) { return ask.accepted == true || ask.accepted == null });
+		    if(booking.Asks.length==0 || !pendingAsks ) {
+
+//set accept and decline tokens
+
+			async.parallel([
+			    function(cb) {
+				tools.setToken(function(token1) {
+				    //something
+				    cb(null, token1);
+				});
+			    },
+			    function (cb) {
+				tools.setToken(function(token2) {
+				    //something
+				    cb(null, token2);
+				});
+			    }
+			], function(err, results) {
+			    console.log(results);
+
+			    db.Ask.create({ dateEmailed: new Date(), acceptToken: results[0], declineToken: results[1] }).then(function(ask) {
+				db.Booking.find(key).then(function(booking) { ask.setBooking(booking) }); // THIS MAY BE UNNECCESSARY SEE ABOVE FUNCTION
+				db.Staff.find({ where: { firstName: req.body[key] } }).then(function(staff) { 
+				    ask.setStaff(staff);
+
+// email out as we create the associations
+
+				    tools.getRootUrl(req, function(rootUrl) {
+
+					console.log(rootUrl);
+
+					booking.getJob({ include: [db.Client, db.Location, db.EventType] }).then(function(job) {
+
+					    var subject = humanize.date('l jS F', job.date) + " - " + booking.start + " - " + job.Client.name + " - " + job.Location.name;
+					    var context = {
+						url: rootUrl,
+						title: subject,
+						ask: ask.id,
+						accept: ask.acceptToken,
+						decline: ask.declineToken,
+
+						date: humanize.date('l jS F', job.date),
+						pax: job.pax,
+						eventType: job.EventType.name,
+						location: job.Location.name,
+						position: 'BLAH BLAH',
+						start: booking.start,	
+					    }
+
+					    // tools.makeMail(req, res, staff.email, 'emailAsk', subject, context, function() {
+					    tools.makeMail(req, res, 'leon.stirkwang@gmail.com', 'emailAsk', subject, context, function() {
+						console.log('sent a mail');
+					    });
+					});
+				    });
+				});
+			    });
+			});
+	            }
+		});
+	    });
+
+	    res.redirect('/job');
+
+
+	    // disable the input fields or something while waiting for response
+	    // or colour coding or some shit to indicate status
+	    // additional colour response on dash page to show confirm status of jobs
+	})
+
+	.get(function(req, res) {
+	    db.Ask.find(req.query.ask).then(function(ask) {
+		if(req.query.token == ask.acceptToken) {
+		    ask.updateAttributes({ accepted: true, acceptToken: null, declineToken: null, dateRespond: new Date() }).then(function() {
+			// redirect to some confirmation page
+		    }).catch(function(err) { console.log(err) });
+		} else if(req.query.token == ask.declineToken) {
+		    ask.updateAttributes({ accepted: false, acceptToken: null, declineToken: null, dateRespond: new Date() }).then(function() {
+			// auto generate new ask for booking and email
+
+			// get user
+			ask.getBooking().then(function(booking) { booking.getJob().then(function(job) { 
+
+			    job.getUser().then(function(user) {
+				console.log('USER ==> ' + user.firstName + ' ' + user.lastName);
+
+				user.getStaffs().then(function(staff) {
+				    console.log('NO. OF STAFF ==> ' + staff.length);
+				    var allStaff = staff;
+				    var allStaffIds = _.pluck(allStaff, 'id');
+				    var askedStaff = [];
+
+				    user.Jobs.forEach(function(job) {
+					job.Bookings.forEach(function(booking) {
+					    if(booking.Asks.length > 0) {
+						booking.Asks.forEach(function(ask) {
+						    askedStaff.push(ask.Staff.id);
+						});
+					    }
+					});
+				    });
+
+				});
+			    });
+			}); });
+
+			// redirect to some confirmation page
+		    }).catch(function(err) { console.log(err) });
+		} else {
+		    console.log('tokens are wrong or expired or whatever');
+		    // redirect to some error page
+		}
+	    });
+		res.redirect('/job'); // THIS NEEDS TO GO AWAY BEFORE GOING TO PRODUCTION
+	});
+
 // ==== //
 // FIND //
 // ==== //
@@ -310,14 +446,15 @@ module.exports = function(app, router, passport) {
 
     app.get('/account', ensureAuthenticated, routes.account);
     app.get('/job', ensureAuthenticated, routes.job);
-    app.get('/staff', ensureAuthenticated, staff.index);
+    app.get('/staff', ensureAuthenticated, routes.staff);
 
     app.get('/login', function(req, res) {
 	res.render('login', { title: 'Login', user: req.user, message: req.flash('error') });
     });
 
     app.post('/login', passport.authenticate('local-login', {
-	successRedirect : '/dash', 
+//	successRedirect : '/dash', 
+	successRedirect : '/job',
 	failureRedirect : '/login', 
 	failureFlash : true 
     }));
@@ -328,10 +465,19 @@ module.exports = function(app, router, passport) {
     });
 
     // wrap secured areas in this
-    // NEED TO DIFFERENTIATE BETWEEN AUTHENTICATING USERS AND STAFF
     function ensureAuthenticated(req, res, next) {
     	if (req.isAuthenticated()) { return next(); }
     	res.redirect('/login');
+    }
+    function ensureStaff(req, res, next) {
+	if(!req.user) {
+	    res.redirect('/login');
+	} else {
+	    db.User.find({ where: { id: req.user.id }, include: [db.Role] }).success(function(user) {
+                if(user.Roles[0].name == 'admin') { return next(); }
+                res.redirect('/login');
+            });
+	}
     }
 
     var addObject = function(obj, typ, cb) {

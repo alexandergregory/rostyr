@@ -8,6 +8,7 @@ module.exports = function(sequelize, DataTypes) {
     }
   }, {
     associate: function(models) {
+	Job.belongsTo(models.User);
 	Job.belongsTo(models.Client);
 	Job.belongsTo(models.Location);
 	Job.belongsTo(models.EventType);

@@ -11,6 +11,7 @@ module.exports = function(sequelize, DataTypes) {
   }, {
     associate: function(models) {
 	Booking.belongsTo(models.Job);
+	Booking.hasMany(models.Ask);
     }
   })
 

@@ -6,6 +6,9 @@ module.exports = function(sequelize, DataTypes) {
 	lastName: {
 	    type: DataTypes.STRING,
 	},
+	callSign: {
+	    type: DataTypes.STRING,
+	},
 	email: {
 	    type: DataTypes.STRING,
 	    allowNull: false,
@@ -17,6 +20,7 @@ module.exports = function(sequelize, DataTypes) {
 	associate: function(models) {
             Staff.belongsTo(models.User);
 	    Staff.hasMany(models.Position);
+	    Staff.hasMany(models.Ask);
 	}
     })
 
