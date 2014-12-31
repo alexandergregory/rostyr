@@ -10,59 +10,18 @@
 </div>
 <% } %>
 
-<% if(user.Jobs) { %>
+<% if(display) { %>
 <div class="container content-top">
   <h2>Jobs</h2>
 
 <div class="table-responsive">
 <table class="table">
-<%
 
-var dateObj = _.pluck(user.Jobs, 'date');
-var dateMap = _.map(dateObj, function(d) { return d.toDateString() });
-var uniqDate = _.uniq(dateMap);
-console.log(uniqDate);
+<% display.dates.forEach(function(date) { %>
 
-uniqDate.forEach(function(date) {
+<tr><td><h3><%= humanize.date('l jS F Y', date.jobs[0].date) %></h3></tr></td>
 
-// ================ //
-// GET JOBS BY DATE //
-// ================ //
-
-var jobs = _.filter(user.Jobs, function(obj) { return obj.date.toDateString() == date });
-console.log("NUMBER OF JOBS PER DATE ==> " + jobs.length);
-
-// ================== //
-// STAFF POOL BY DATE //
-// ================== //
-
-var allStaff = user.Staffs;
-var allStaffIds = _.pluck(allStaff, 'id');
-
-console.log('ALL ==> ' + allStaffIds);
-
-var askedStaff = [];
-
-jobs.forEach(function(job) {
-   job.Bookings.forEach(function(booking) {
-      if(booking.Asks.length > 0) {
-         booking.Asks.forEach(function(ask) {
-            askedStaff.push(ask.Staff.id);
-         });
-      }
-   });
-});
-
-console.log('EXCLUDE ==> ' + askedStaff);
-
-var availableStaff = _.difference(allStaffIds, askedStaff);
-console.log('AVAILABLE ==> ' + availableStaff);
-
-%><tr><td><h3><%= humanize.date('l jS F Y', jobs[0].date) %></h3></tr></td><%
-
-   jobs.forEach(function(job) {
-      // console.log(job.Client.name);
-%>
+<% date.jobs.forEach(function(job) { %>
 
 <tr><td>
 
@@ -70,20 +29,25 @@ console.log('AVAILABLE ==> ' + availableStaff);
     <thead>
       <th class="col-xs-2">Client</th>
       <th class="col-xs-1">Arrival</th>
-      <th class="col-xs-5">Location</th>
+      <th class="col-xs-4">Location</th>
       <th class="col-xs-1">Pax</th>
       <th class="col-xs-2">Event</th>
+      <th class="col-xs-1"></th>
       <th class="col-xs-1"></th>
     </thead>
     <tbody>
          <tr>
 	   <form class="form-horizontal" method="post" action="api/jobs/<%= job.id %>" role="form">
-             <td><input class="form-control" value="<%= job.Client.name %>" name="client" /></td>
+             <td><p><%= job.Client.name%></p></td>
 	     <td><input class="form-control" value="<%= humanize.date('Hi', job.date) %>" name="time" /></td>
              <td><input class="form-control" value="<%= job.Location.name %>" name="location" /></td>
              <td><input class="form-control" value="<%= job.pax %>" name="pax" /></td>
              <td><input class="form-control" value="<%= job.EventType.name %>" name="eventType" /></td>
-
+	     <td class="text-right">
+               <a href="/api/job/<%= job.id %>?redirect=job" class="btn btn-primary">
+		 <span class="fui-arrow-right"></span>
+               </a>
+             </td>
 	     <td class="text-right">
                <a href="/api/job/remove/<%= job.id %>?redirect=job" class="btn btn-danger">
 		 <span class="fui-cross"></span>
@@ -130,7 +94,6 @@ console.log('AVAILABLE ==> ' + availableStaff);
 
       for(var k=0; k < uniqPos.length; k++) {
 
-
           // ======== //
           // BOOKINGS //
           // ======== //
@@ -140,23 +103,8 @@ console.log('AVAILABLE ==> ' + availableStaff);
 
 // get total staff pool
 
-	  console.log('==> CLIENT: ' + job.Client.name); // print client
-
 	  var posArr = [];
 	  var el = uniqPos[k];
-
-	  console.log('==> ' + el.toUpperCase()); // print position
-
-// get all of a given position and push to a pos array
-
-          var mappedAvailableStaff = _.map(availableStaff, function(id) { return _.find(user.Staffs, function(staff) { return staff.id == id }) });
-
-          mappedAvailableStaff.forEach(function(staff) {
-             var hasPos = _.pluck(staff.Positions, 'name').indexOf(el);
-             if(hasPos >= 0) { 
-                posArr.push(staff); // array of staff objects
-             };
-          });
 
 // sort that pos array
 
@@ -165,12 +113,13 @@ console.log('AVAILABLE ==> ' + availableStaff);
           });
 
           sortArr.forEach(function(ea) {
+	     console.log('sort array');
              console.log(ea.firstName + ' ' + ea.lastName);
           });
 
 // slice each allocation from the total date/job pool
 
-	  %><td><% if(k==0) { %><%= uniqStart[j] %><% } %></td><%
+	  %><td><% if(k==0) { %><%= humanize.date('g:ia', uniqStart[j]) %><% } %></td><%
 	  %><td><%= bookings.length %></td><%
 	  %><td><%= uniqPos[k] %></td><%
 
@@ -182,30 +131,17 @@ console.log('AVAILABLE ==> ' + availableStaff);
 
           for(var l=0; l < bookings.length; l++) { 
 
-// exclude some staff by cutting
-
-	     var unusedArr = _.difference(sortArr, askedStaff);
-	     var suggestion = _.findWhere(unusedArr, function(staff) { return staff });
-
 	  %>
 
              <td>				   
-	        <div class="form-group no-margin <% if(_.find(bookings[l].Asks, function(ask){ return ask.accepted == true })) { %>has-success<% } else if(bookings[l].Asks.length>0 && _.find(bookings[l].Asks, function(ask) { return ask.accepted == true || ask.accepted == null }) ) { %>has-warning<% } else { %>has-error<% } %>">
+	        <div class="form-group no-margin">
 	           <label class="sr-only" for="<%= bookings[l].id %>"><%= bookings[l].id %></label>
 	           <input type="text" class="form-control input-sm" placeholder="Name" 
-<% if(bookings[l].Asks.length>0 && _.find(bookings[l].Asks, function(ask){ return ask.accepted  == null || ask.accepted == true }) ) { %>
-		          value="<%= _.find(bookings[l].Asks, function(ask){ return ask.accepted  == null || ask.accepted == true }).Staff.firstName %>"
-		          disabled
-<% } else { %>
-                          value="<% if(suggestion) { %><%= suggestion.firstName %><% } %>"
-<% } %>
+		          value=""
 			  name="<%= bookings[l].id %>" />
 	        </div>
 	     </td>
 	  <% 
-
-// push suggestion to askedStaff
-if(suggestion) { askedStaff.push( _.find(user.Staffs, function(staff){ return staff.firstName == suggestion.firstName }).id ) }
 
 	  }
 
@@ -338,46 +274,34 @@ if(suggestion) { askedStaff.push( _.find(user.Staffs, function(staff){ return st
   </div>
 </div>
 
-
 <script>
+
 var clientBlood = new Bloodhound({
   datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
   queryTokenizer: Bloodhound.tokenizers.whitespace,
-  local: [
-    <% for(var m=0; m<user.Clients.length; m++) { %>
-      { name: '<%= user.Clients[m].name %>' },
-    <% } %>
-  ],
+  local: [],
+  remote: "<%= root %>/api/find/client",
 });
  
 var locationBlood = new Bloodhound({
   datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
   queryTokenizer: Bloodhound.tokenizers.whitespace,
-  local: [
-    <% for(var m=0; m<user.Locations.length; m++) { %>
-      { name: '<%= user.Locations[m].name %>' },
-    <% } %>
-  ],
+  local: [],
+  remote: "<%= root %>/api/find/location",
 });
 
 var eventBlood = new Bloodhound({
   datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
   queryTokenizer: Bloodhound.tokenizers.whitespace,
-  local: [
-    <% for(var m=0; m<user.EventTypes.length; m++) { %>
-      { name: '<%= user.EventTypes[m].name %>' },
-    <% } %>
-  ],
+  local: [],
+  remote: "<%= root %>/api/find/eventType",
 });
 
 var posBlood = new Bloodhound({
   datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
   queryTokenizer: Bloodhound.tokenizers.whitespace,
-  local: [
-    <% for(var m=0; m<user.Positions.length; m++) { %>
-      { name: '<%= user.Positions[m].name %>' },
-    <% } %>
-  ],
+  local: [],
+  remote: "<%= root %>/api/find/position",
 });
  
 clientBlood.initialize();
@@ -420,4 +344,5 @@ $('[name="position"]').typeahead({
   displayKey: 'name',
   source: posBlood.ttAdapter(),
 });
+
 </script>

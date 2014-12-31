@@ -16,6 +16,9 @@ module.exports = function(sequelize, DataTypes) {
 	phone: {
 	    type: DataTypes.STRING,
 	},
+	token: {
+	    type: DataTypes.STRING,
+	},
     }, {
 	associate: function(models) {
             Staff.belongsTo(models.User);

@@ -1,0 +1,16 @@
+<html>
+<body>
+
+<h1><%= title %></h1>
+
+<p>Hi (STAFF NAME), (USER COMPANY) has added you to their rostering system, Rostyr.</p>
+<p>If you would like to manage your availability and check when you're working please follow this link to activate your account:</p>
+
+<a href="<%= url %>/user/verify?token=<%= token %><% if (staff.email) { %>&email=<%= staff.email %><% } %>" ><p>Activate my account!</p></a>
+
+<p>Regards</p>
+<p>The team at Rostyr</p>
+
+</body>
+</html>
+

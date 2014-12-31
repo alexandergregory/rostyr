@@ -18,104 +18,79 @@ module.exports = function(app, router, passport) {
 // ===== //
 
     router.route('/staff')
-	.post(ensureAuthenticated, function(req, res) {
+	.post(ensureAuthenticated, ensureUser, function(req, res) {
 
-	    var reqx = req.body
-	    , firstName = reqx.firstName
-	    , lastName = reqx.lastName
-	    , email = reqx.email
-	    , phone = reqx.phone
-	    ;
+	    var newStaff = { firstName: req.body.firstName, lastName: req.body.lastName, email: req.body.email, phone: req.body.phone };
 
-	    db.Staff.create({ firstName: firstName, lastName: lastName, email: email, phone: phone }).then(function(staff) {
+	    genNewCallsign(newStaff, function(callsign) {
+		db.Staff.create({ firstName: newStaff.firstName, lastName: newStaff.lastName, callSign: callsign, email: newStaff.email, phone: newStaff.phone }).then(function(staff) {
+		    staff.setUser(req.user);
 
-		staff.setUser(req.user);
+		    console.log(req.body.position);
+		    var positions = req.body.position.split(',');
+		    console.log(positions);
 
-		console.log(req.body.position);
+		    async.each(positions, function(pos, cb) {
+			addObject(pos, db.Position, req.user, function(position) {
+			    staff.addPosition(position);
+			    cb();
+			});
+		    }, function() {
 
-		var positions = req.body.position.split(',');
+			tools.getRootUrl(req, function(rootUrl) {
+			    console.log(rootUrl);
 
-		console.log(positions);
+				var subject = 'Welcome to Rostyr'
+				var context = {
+				    url: rootUrl,
+				    title: 'Welcome to Rostyr',
+				    staff: staff,
+				}
 
-		async.each(positions, function(pos, cb) {
-		    addPosition(pos, function(err, position) {
-			if(err) { console.log(err); cb(err) }
-			staff.addPosition(position);
-			req.user.addPosition(position); // ONLY DO THIS IF USER DOESN'T ALREADY HAVE THE POSITION??
-			cb();
+				// tools.makeMail(req, res, staff.email, 'emailStaffCreate', subject, context, function() {
+				tools.makeMail(req, res, 'leon.stirkwang@gmail.com', 'emailStaffCreate', subject, context, function() {
+				    console.log('sent a mail to ' + staff.callSign);
+				});
+
+			    req.flash('message', 'New staff member added successfully');		    
+			    res.redirect('/staff');
+			});
 		    });
-		}, function() {
-		    req.flash('message', 'New staff member added successfully');		    
-		    res.redirect('/staff');
 		});
-
 	    });
-
 	});
 
     router.route('/staff/:id')
 
-	.post(ensureAuthenticated, function(req, res) {
+	.post(ensureAuthenticated, ensureUser, function(req, res) {
+
 	    db.Staff.find({ where: { id: req.param('id') }, include: [ db.Position ] }).then(function(staff) {
-		staff.updateAttributes({ firstName: req.body.fName, lastName: req.body.lName, email: req.body.email, phone: req.body.phone }).then(function() {
 
-		    console.log(req.body.position);
-
-		    var positions = req.body.position.split(',');
-
-		    console.log(positions);
-
-		    var existPos = _.pluck(staff.Positions, 'name');
-		    console.log(existPos);
-
-		    var add = _.difference(positions, existPos);
-		    console.log(add);
-
-		    var subtract = _.difference(existPos, positions);
-		    console.log(subtract);
-
-
-		    async.parallel([
-			function(cback) {
-			    async.each(add, function(pos, cb) {
-				console.log('here we are at the add section');
-				addPosition(pos, function(err, position) {
-				    if(err) { console.log(err); cb(err) }
-				    staff.addPosition(position);
-				    req.user.addPosition(position); // ONLY DO THIS IF USER DOESN'T ALREADY HAVE THE POSITION??
-				    cb();
-				});
-			    }, function() {
-				cback();
-			    });
-			},
-			function(cback) {
-			    async.each(subtract, function(pos, cb) {
-				console.log('here we are at the subtract section');
-				db.Position.find({ where: { name: pos } }).then(function(position) {
-				    staff.removePosition(position);
-				    cb();
-				});
-			    }, function() {
-				cback();
-			    });
-			}
-		    ], function() {
-			
-			req.flash('message', 'Staff member updated successfully');		    
+		if(staff.firstName == req.body.fName && staff.lastName == req.body.lName) {
+		    updateStaff(req, staff, staff.callsign, function() {
 			res.redirect('/staff');
+		    });
+		} else {
+		    var newStaff = { firstName: req.body.fName, lastName: req.body.lName, email: req.body.email, phone: req.body.phone };
+		    genNewCallsign(newStaff, function(callsign) {
+			updateStaff(req, staff, callsign, function() { 
+			    res.redirect('/staff'); 
+			});
+		    });
+		}
 
-		    })
-		});
 	    });
 	});
 
     router.route('/staff/remove/:id')
 
-	.get(ensureAuthenticated, function(req, res) {
+	.get(ensureAuthenticated, ensureUser, function(req, res) {
 
 	    db.Staff.find(req.param('id')).then(function(staff) {
 		staff.destroy().then(function() {
+	
+		    // if last of position then delete position
+
 		    req.flash('message', 'Staff member removed successfully');
 		    res.redirect('/staff');
 		});
@@ -131,60 +106,36 @@ module.exports = function(app, router, passport) {
 
     router.route('/job')
 
-
 	.post(ensureAuthenticated, function(req, res) {
 
-	    var reqx = req.body
-            , dd   = reqx.day
-            , mm   = reqx.month - 1
-            , yy   = reqx.year
-	    , tt   = reqx.time
-	    , hh   = tt.substring(0,2)
-	    , mi   = tt.substring(2)
-            , date = new Date(yy,mm,dd,hh,mi)
-            , pax  = reqx.pax
-            , reqLocation = reqx.location
-            , reqClient = reqx.client
-            , reqEventType = reqx.eventType
-	    , redirect = reqx.redirect
-            ;
+            var date = new Date(req.body.year,req.body.month-1,req.body.day,req.body.time.substring(0,2),req.body.time.substring(2));
 
-            db.Job.create({ date: date, pax: pax }).then(function(job) {
-
-		req.user.addJob(job);
+            db.Job.create({ date: date, pax: req.body.pax }).then(function(job) {
 
 		async.parallel([
+		    function(cb) {
+			req.user.addJob(job).then(function() { cb() });
+		    },
                     function(cb) {
-			addObject(reqClient, db.Client, function(client) {
-                            client.addJob(job);
-			    req.user.addClient(client);
-                            cb();
+			addObject(req.body.client, db.Client, req.user, function(client) {
+                            client.addJob(job).then(function() { cb() });
 			});
                     },
                     function(cb) {
-			addObject(reqLocation, db.Location, function(location) {
-                            location.addJob(job);
-			    req.user.addLocation(location);
-                            cb();
+			addObject(req.body.location, db.Location, req.user, function(location) {
+                            location.addJob(job).then(function() { cb() });
 			});
                     },
                     function(cb) {
-			addObject(reqEventType, db.EventType, function(eventType) {
-                            eventType.addJob(job);
-			    req.user.addEventType(eventType);
-                            cb();
+			addObject(req.body.eventType, db.EventType, req.user, function(eventType) {
+                            eventType.addJob(job).then(function() { cb() });
 			});
                     },
-		], function(err, results) {
-                    if(err) {
-			console.log(err);
-                    }
+		], function(err) {
+                    if(err) { console.log(err); }
+		    req.flash('message', 'New job created successfully');
+		    res.redirect('/' + req.body.redirect);
 		});
-
-		req.flash('message', 'New job created successfully');
-
-		if(redirect == 'dash') { res.redirect('/dash'); } else { res.redirect('/job'); }
-
             });
 
 	});
@@ -193,21 +144,43 @@ module.exports = function(app, router, passport) {
 
 	.post(ensureAuthenticated, function(req, res) {
 
-	    var reqx = req.body
-            , dd   = reqx.day
-            , mm   = reqx.month - 1
-            , yy   = reqx.year
-	    , tt   = reqx.time
-	    , hh   = tt.substring(0,2)
-	    , mi   = tt.substring(2)
-            , date = new Date(yy,mm,dd,hh,mi)
-            , pax  = reqx.pax
-            , reqLocation = reqx.location
-            , reqClient = reqx.client
-            , reqEventType = reqx.eventType
-            ;
+            var date = new Date(req.body.year,req.body.month,req.body.day,req.body.time.substring(0,2),req.body.time.substring(2));
 
-	})
+	    db.Job.find(req.param('id')).then(function(job) {
+		job.date = date;
+		job.pax = pax;
+
+		// if client, location or event type have changed then must find, remove and replace with new values
+		// if changes are made we need to email out all confirmed and pending staff
+
+		async.each(Object.keys(req.body), function(key, cb) {
+		    switch (key) {
+		    case client:
+			console.log('client');
+			cb();
+			break;
+		    case location:
+			console.log('location');
+			cb();
+			break;
+		    case eventType:
+			cosole.log('eventType');
+			cb();
+			break;
+		    default:
+			cb();
+			break;			
+		    }
+		});
+
+		job.save().then(function() { 
+		    // something });
+		}).catch(function(err) {
+		    console.log(err);
+		});
+
+	    });
+	});
 
     router.route('/job/remove/:id')
 
@@ -235,6 +208,8 @@ module.exports = function(app, router, passport) {
     // create a new booking and attach the current job
 	.post(function(req, res) {
 
+	    // NEED FUNCTION TO SANITISE "START" INPUT //
+
 	    console.log(req.body.start);
 	    console.log(req.body.number);
 
@@ -242,24 +217,20 @@ module.exports = function(app, router, passport) {
 
 		// get number of bookings
 		for(var i = 0; i < req.body.number; i++) {
-		    db.Booking.create({ start: req.body.start, position: req.body.position }).then(function(booking) {
 
+		    var start = job.date;
+		    start.setHours(req.body.start.substring(0,2));
+		    start.setMinutes(req.body.start.substring(2));
+		    console.log(start);
+
+		    db.Booking.create({ start: start, position: req.body.position }).then(function(booking) {
 			booking.setJob(job);
-
 			console.log({ message: 'created new booking for ' + req.body.start });
+			res.redirect('/job');
 		    });
 		}
 	    });
-
-	    res.redirect('/job');
 	})
-
-    // get all the bookings (accessed at GET http://something:8080/api/bookings)
-	.get(function(req, res) {
-	    db.Job.find({ where: { id: req.param('jobs_id') }, include: [ db.Booking ] }).then(function(job) {
-		res.json(job.Bookings);
-	    });
-	});
 
     // delete all bookings when job is deleted
 
@@ -370,13 +341,17 @@ module.exports = function(app, router, passport) {
 			    job.getUser().then(function(user) {
 				console.log('USER ==> ' + user.firstName + ' ' + user.lastName);
 
+				var date = job.date.toString();
+
 				user.getStaffs().then(function(staff) {
 				    console.log('NO. OF STAFF ==> ' + staff.length);
 				    var allStaff = staff;
 				    var allStaffIds = _.pluck(allStaff, 'id');
 				    var askedStaff = [];
 
-				    user.Jobs.forEach(function(job) {
+				    var dateJobs = _.find(user.Jobs, function(dateJob) { return dateJob.date.toString() == date });
+
+				    dateJobs.forEach(function(job) {
 					job.Bookings.forEach(function(booking) {
 					    if(booking.Asks.length > 0) {
 						booking.Asks.forEach(function(ask) {
@@ -385,6 +360,10 @@ module.exports = function(app, router, passport) {
 					    }
 					});
 				    });
+
+				    var availableStaff = _.difference(allStaffIds, askedStaff);
+
+				    // now need to filter by postition and then select staff
 
 				});
 			    });
@@ -406,19 +385,34 @@ module.exports = function(app, router, passport) {
 
     router.route('/find/client')
 	.get(function(req, res) {
-	    db.Client.findAll().then(function(clients) {
+	    db.Client.findAll({ attributes: ['name'] }).then(function(clients) {
 		console.log(clients.name);
 		res.send(clients);
 	    });
-
 	});
 
     router.route('/find/location')
 	.get(function(req, res) {
-		db.Location.findAll().then(function(locs) {
-		    console.logs(locs.name);
-		    res.send(locs);
-		});	    
+	    db.Location.findAll({ attributes: ['name'] }).then(function(locs) {
+		console.log(locs.name);
+		res.send(locs);
+	    });	    
+	});
+
+    router.route('/find/eventType')
+	.get(function(req, res) {
+	    db.EventType.findAll({ attributes: ['name'] }).then(function(eventTypes) {
+		console.log(eventTypes.name);
+		res.send(eventTypes);
+	    });	    
+	});
+
+    router.route('/find/position')
+	.get(function(req, res) {
+	    db.Position.findAll({ attributes: ['name'] }).then(function(positions) {
+		console.log(JSON.stringify(positions));
+		res.send(positions);
+	    });	    
 	});
 
     app.use('/api', router);
@@ -440,13 +434,13 @@ module.exports = function(app, router, passport) {
 	    failureFlash: true
 	}));
 
-    app.post('/user/update', ensureAuthenticated, user.update);
+    app.post('/user/update', ensureUser, user.update);
 
-    app.get('/dash', ensureAuthenticated, routes.dash);
+    app.get('/dash', ensureAuthenticated, ensureUser, routes.dash);
 
-    app.get('/account', ensureAuthenticated, routes.account);
-    app.get('/job', ensureAuthenticated, routes.job);
-    app.get('/staff', ensureAuthenticated, routes.staff);
+    app.get('/account', ensureAuthenticated, ensureUser, routes.account);
+    app.get('/job', ensureAuthenticated, ensureUser, routes.job);
+    app.get('/staff', ensureAuthenticated, ensureUser, routes.staff);
 
     app.get('/login', function(req, res) {
 	res.render('login', { title: 'Login', user: req.user, message: req.flash('error') });
@@ -469,18 +463,27 @@ module.exports = function(app, router, passport) {
     	if (req.isAuthenticated()) { return next(); }
     	res.redirect('/login');
     }
+    function ensureUser(req, res, next) {
+	if(!req.user) {
+	    res.redirect('/login');
+	} else {
+	    db.User.find({ where: { id: req.user.id }, include: [db.Role] }).then(function(user) {
+		if(_.where(user.Roles, { name: 'user' })) { return next(); }
+		res.redirect('/login');
+	    });
+	}
+    }
     function ensureStaff(req, res, next) {
 	if(!req.user) {
 	    res.redirect('/login');
 	} else {
-	    db.User.find({ where: { id: req.user.id }, include: [db.Role] }).success(function(user) {
-                if(user.Roles[0].name == 'admin') { return next(); }
+	    db.User.find({ where: { id: req.user.id }, include: [db.Role] }).then(function(user) {
+                if(_.where(user.Roles, { name: 'staff' })) { return next(); }
                 res.redirect('/login');
             });
 	}
     }
-
-    var addObject = function(obj, typ, cb) {
+    function addObject(obj, typ, user, cb) {
 	typ.find({ where: { name: obj } }).then(function(object) {
 	    if(object) {
 		cb(object);
@@ -489,6 +492,7 @@ module.exports = function(app, router, passport) {
 		    name: obj
 		});
 		new_obj.save().then(function(object) {
+		    object.addUser(user);
 		    cb(object);
 		}).catch(function(err) {
 		    cb(err);
@@ -496,21 +500,81 @@ module.exports = function(app, router, passport) {
 	    }
 	});
     }
-    var addPosition = function(pos, cb) { // THIS FUNCTION CAN BE MERGED INTO THE ADDOBJECT FUNCTION ABOVE
-	db.Position.find({ where: { name: pos } }).then(function(position) {
-            if(position) {
-		cb(null, position);
-            } else {
-		var new_pos = db.Position.build({
-                    name: pos
+    function genNewCallsign(newStaff, cb) {
+	db.Staff.findAll({ where: { firstName: newStaff.firstName } }).then(function(matchedStaff) {
+
+	    var lastNames = _.pluck(matchedStaff, 'lastName');
+
+	    if(matchedStaff.length==0) {
+		cb(newStaff.firstName);
+	    }
+	    else if (matchedStaff && _.find(_.map(lastNames, function(ln) { return ln.charAt(0) }), function(lnChar) { return lnChar == newStaff.lastName.charAt(0) }) == null) {
+
+		async.each(matchedStaff, function(staff, cb) {
+		    staff.callSign = staff.firstName + " " + staff.lastName.charAt(0);
+		    staff.save().then(cb()).catch(function(err) { console.log(err); });
+		}, function(err) {
+		    if(err) { console.log(err); }
+		    cb( newStaff.firstName + " " + newStaff.lastName.charAt(0) );			    
 		});
-		new_pos.save().then(function(position) {
-                    cb(null, position);
-		}).catch(function(err) {
-                    cb(err, position);
+
+	    }
+	    else if (matchedStaff && _.find(lastNames, function(lnFull) { return lnFull == newStaff.lastName }) == null) {
+
+		var sameInitial = _.filter(matchedStaff, function(match) { return match.lastName.charAt(0) == newStaff.lastName.charAt(0) });
+
+		async.each(sameInitial, function(staff, cb) {
+		    staff.callSign = staff.firstName + " " + staff.lastName;
+		    staff.save().then(cb()).catch(function(err) { console.log(err); });
+		}, function(err) {
+		    if(err) { console.log(err); }
+		    cb( newStaff.firstName + " " + newStaff.lastName );
 		});
-            }
+
+	    }
+	    else {
+		console.log('already entered the staff member or two people with the same name');
+		cb('SEND CONFIRMATION MESSAGE ASKING TO PROCEED WITH DB ENTRY');
+	    }
+	}).catch(function(err) {
+	    console.log(err);
+	    cb(err);
 	});
     }
+    function updateStaff(req, staff, callsign, cb) {
+	staff.updateAttributes({ firstName: req.body.fName, lastName: req.body.lName, callSign: callsign, email: req.body.email, phone: req.body.phone }).then(function(staff) {
 
+	    var positions = req.body.position.split(',');
+	    var existPos = _.pluck(staff.Positions, 'name');
+
+	    var add = _.difference(positions, existPos);
+	    var subtract = _.difference(existPos, positions);
+
+	    async.parallel([
+		function(cb) {
+		    async.each(add, function(pos, cb) {
+			addObject(pos, db.Position, req.user, function(position) {
+			    staff.addPosition(position);
+			    cb();
+			});
+		    }, function() {
+			cb();
+		    });
+		},
+		function(cb) {
+		    async.each(subtract, function(pos, cb) {
+			db.Position.find({ where: { name: pos } }).then(function(position) {
+			    staff.removePosition(position);
+			    cb();
+			});
+		    }, function() {
+			cb();
+		    });
+		}
+	    ], function() {
+		req.flash('message', staff.callSign + "'s profile has updated successfully");
+		cb();
+	    });
+	});
+    }
 }

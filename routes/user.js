@@ -138,7 +138,7 @@ exports.update = function(req, res) {
 
 	      	    console.log(token);
 
-	      	    tools.getRootUrl(req, function(rootUrl) {
+	      	    getRootUrl(req, function(rootUrl) {
 
 	      		var subject = 'Changed email';
 

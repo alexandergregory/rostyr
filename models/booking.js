@@ -1,7 +1,7 @@
 module.exports = function(sequelize, DataTypes) {
   var Booking = sequelize.define('Booking', {
     start: {
-        type:  DataTypes.STRING,
+        type:  DataTypes.DATE,
         allowNull: false
     },
     position: {

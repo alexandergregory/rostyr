@@ -18,6 +18,7 @@ module.exports = function(sequelize, DataTypes) {
   }, {
     associate: function(models) {
         Ask.belongsTo(models.Staff);
+	Ask.belongsTo(models.Job);
         Ask.belongsTo(models.Booking);
     }
   })
