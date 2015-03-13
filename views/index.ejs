@@ -11,7 +11,7 @@
       </div>
 
       <div class="col-md-4">
-	<form method="post" action="/user/create" role="form">
+	<form method="post" action="api/user" role="form">
           <div class="login-form">
 
 	    <h6 class="text-center">Full-featured trial</h6>
@@ -35,9 +35,16 @@
 	    </div>
 
 	    <div class="form-group">
+	      <input type="text" class="form-control login-field" value="" placeholder="Company name" name="company" />
+	      <label class="login-field-icon fui-user" for="company"></label>
+	    </div>
+
+	    <div class="form-group">
 	      <input type="text" class="form-control login-field" value="" placeholder="Email" name="email" />
 	      <label class="login-field-icon fui-mail" for="email"></label>
 	    </div>
+
+	    <input type="hidden" value="user" name="userType" />
 
 	    <button type="submit" class="btn btn-primary btn-lg btn-block">Start free trial</button>
           </div>

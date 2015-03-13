@@ -2,69 +2,331 @@ var async   = require('async');
 var _       = require('underscore');
 var humanize = require('humanize');
 var routes  = require('./routes');
-var user    = require('./routes/user');
 var tools   = require('./routes/tools');
 var db      = require('./models');
 
 module.exports = function(app, router, passport) {
 
     router.use(function(req, res, next) {
-	console.log('something is happening');
+	console.log('ACCESSED API');
 	next();
     });
+
+// ==== //
+// USER //
+// ==== //
+
+    router.route('/user')
+	.get(ensureAuthenticated, function(req, res) {
+	    // something
+	})
+	.post(function(req, res, next) {
+	    if(req.body.userType == 'staff') {
+
+		ensureAuthenticated(req, res, function() {
+		    next();
+		});
+
+	    } else if (req.body.userType == 'user') {
+		next();
+	    } else {
+		res.redirect('/login');
+	    }
+	}, function(req, res) {
+
+	    var isStaff = req.body.userType == 'staff';
+	    var isUser = req.body.userType == 'user';
+
+	    async.waterfall([
+		function(cb) {
+
+		    async.parallel({
+			company: function(cb) {
+			    cb(null, (function() { if(isUser) { return req.body.company } else { return null } })());
+			},
+			phone: function(cb) {
+			    cb(null, (function() { if(isStaff) { return req.body.phone } else { return null } })());
+			},
+			token: function(cb) {
+			    tools.genToken(function(token) { cb(null, token) });
+			},
+			callsign: function(cb) {
+			    if (isStaff) { 
+				genNewCallsign({ firstName: req.body.firstName, lastName: req.body.lastName }, function(callsign) { 
+				    cb(null, callsign);
+				});
+			    } else { 
+				cb(null, null);
+			    } 
+			}
+		    }, function(err, result) {
+			if(err) { console.log(err) }
+
+			var user = db.User.build({ 
+			    firstName: req.body.firstName, 
+			    lastName: req.body.lastName, 
+			    email: req.body.email, 
+			    token: result.token,
+			    phone: result.phone,
+			    callsign: result.callsign,
+			    company: result.company
+			});
+
+			user.save().then(function(user) { cb(null, user) }).catch(function(err) { console.log(err) });
+
+		    });
+		},
+		function(user, cb) {
+
+		    async.parallel([
+			function(cb) {
+			    db.Role.find({ where: { name: req.body.userType } }).then(function(role) {
+				user.addRole(role);
+				cb();
+			    });
+			},
+			function(cb) {
+			    if(isStaff) {
+				async.parallel([
+				    function(cb) {
+					db.User.find(req.user.id).then(function(owner) {
+					    owner.addStaff(user);
+					    cb();
+					});
+				    },
+				    function(cb) {
+					var positions = req.body.position.split(',');
+
+					console.log(positions);
+
+					async.each(positions, function(pos, cb) {
+					    addObject(pos, db.Position, req.user, function(position) {
+						user.addPosition(position);
+						cb();
+					    });
+					}, function() {
+					    cb();
+					});
+				    }
+				], function(err, results) {
+				    cb();
+				});
+			    } else { cb() }
+			}
+		    ], function(err, results) {
+			if(err) { console.log(err) };
+			cb(null, user);
+		    });
+
+		},
+		function(user, cb) {
+
+		    tools.getRootUrl(req, function(rootUrl) {
+
+			if(isUser) {
+
+			    var subject = "Welcome to Rostyr";
+			    var context = {
+				token: user.token,
+				url: rootUrl,
+				title: subject,
+				email: req.body.email
+			    }
+
+			    // tools.makeMail(req, res, req.body.email, 'emailVerify', subject, context, function() {
+			    tools.makeMail(req, res, 'leon.stirkwang@gmail.com', 'emailCreateUser', subject, context, function() {
+				console.log('sent a mail to ' + user.firstName + ' from ' + user.company);
+			    });
+
+			    if(req.body.userType == 'user') {
+
+				res.render('verify', {
+				    title: 'Hi ' + user.firstName + ', Welcome to Rostyr',
+				    user: req.user,
+				});
+
+			    } else {
+				res.redirect('/staff');
+			    }
+
+			}
+
+			if(isStaff) {
+
+			    var subject = 'Welcome to Rostyr'
+			    var context = {
+				url: rootUrl,
+				title: 'Welcome to Rostyr',
+				staff: user,
+				user: req.user,
+			    }
+
+			    // tools.makeMail(req, res, staff.email, 'emailCreateStaff', subject, context, function() {
+			    tools.makeMail(req, res, 'leon.stirkwang@gmail.com', 'emailCreateStaff', subject, context, function() {
+				console.log('sent a mail to ' + user.callSign);
+			    });
+
+			    req.flash('message', 'New staff member added successfully');		    
+			    res.redirect('/staff');
+
+			}
+
+		    });
+
+		    cb(null);
+		}
+	    ], function(err) {
+		if(err) { console.log(err) };
+	    });
+	});
+
+    router.route('/verify')
+	.get(function(req, res) {
+
+	    var token = req.query.token;
+	    db.User.find({ where: {token: token} }).then(function(user) {
+		user.updateAttributes({
+		    active: true
+		}).then(function() {
+		    res.redirect('/user/setup?token='+ token);
+		}).catch(function(err) {
+		    console.log(err);
+		});
+	    });
+
+	});
+
+    app.route('/user/setup')
+	.get(function(req, res) {
+	    db.User.find({ where: { token: req.query.token } }).then(function(user) {
+		if(user.pass != null) {
+		    res.redirect('/');
+		}
+		res.render('setup', {
+		    title: user.firstName,
+		    user: user,
+		});
+	    });
+	})
+	.post(passport.authenticate('local-setpass', {
+	    successRedirect: '/dash',
+	    failureRedirect: '/login',
+	    failureFlash: true
+	}));
+
+
+
+// ====== //
+// UPDATE //
+// ====== //
+
+    app.post('/user/update', ensureUser, function(req, res) {
+
+	Object.keys(req.body).forEach(function(key){
+
+            if (req.body[key] && req.body[key] != req.user[key]) {
+
+		switch (key) {
+		case "email":
+                    console.log("email field changed. case is '" + key + "'");
+
+                    setToken(function(token) {
+
+			console.log(token);
+
+			getRootUrl(req, function(rootUrl) {
+
+                            var subject = 'Changed email';
+
+                            var context = {
+				url: rootUrl,
+				token: token,
+				title: subject,
+				email: req.body[key]
+                            }
+
+                            // need to make sure that there is some way of telling the difference between success and failure. when the makeMail function returns. may need to return a flash message
+                            tools.makeMail(req, res, req.body[key], 'emailCreateUser', subject, context, function() {
+				res.render('verify', {
+                                    title: subject,
+                                    user: req.user,
+				});
+                            });
+			});
+                    });
+
+                    break;
+		case "oldpass":
+                    //do nothing
+                    break;
+		case "pass":
+                    console.log("password field changed. case is '" + key + "'");
+
+                    // make sure both fields are filled out and match
+                    if ( req.user.validPassword(req.body.oldpass) ) {
+			if ( req.body[key] == req.body.passconf ) {
+                            req.user[key] = req.user.generateHash(req.body[key]);
+                            // also need to throw a flash message.
+			}
+                    }
+                    // otherwise throw a no match error
+
+                    break;
+		case "passconf":
+                    // do nothing
+                    break;
+		default:
+                    console.log(req.user[key] + " is changed to " + req.body[key]);
+                    req.user[key] = req.body[key];
+		}
+            }
+	});
+
+	req.user.save().then(function() {
+            return;
+	});
+
+	req.flash('message', 'Profile updated successfully');
+	res.redirect('/account');
+    });
+
+    app.get('/account', ensureAuthenticated, routes.account);
+
+
+
+
+    router.route('/user/remove/:id')
+
+	.get(ensureAuthenticated, function(req, res) {
+
+	    var owner = req.user;
+
+
+	    db.User.find(req.param('id')).then(function(user) {
+		if(owner == user || user.UserId == owner.id) {
+		    user.destroy().then(function() {
+			req.flash('message', 'User deleted');
+			res.redirect('/staff');
+		    });
+		} else {
+		    res.redirect('/staff');
+		}
+	    });
+
+	})
+
+
+
 
 // ===== //
 // STAFF //
 // ===== //
 
-    router.route('/staff')
-	.post(ensureAuthenticated, ensureUser, function(req, res) {
-
-	    var newStaff = { firstName: req.body.firstName, lastName: req.body.lastName, email: req.body.email, phone: req.body.phone };
-
-	    genNewCallsign(newStaff, function(callsign) {
-		db.Staff.create({ firstName: newStaff.firstName, lastName: newStaff.lastName, callSign: callsign, email: newStaff.email, phone: newStaff.phone }).then(function(staff) {
-		    staff.setUser(req.user);
-
-		    console.log(req.body.position);
-		    var positions = req.body.position.split(',');
-		    console.log(positions);
-
-		    async.each(positions, function(pos, cb) {
-			addObject(pos, db.Position, req.user, function(position) {
-			    staff.addPosition(position);
-			    cb();
-			});
-		    }, function() {
-
-			tools.getRootUrl(req, function(rootUrl) {
-			    console.log(rootUrl);
-
-				var subject = 'Welcome to Rostyr'
-				var context = {
-				    url: rootUrl,
-				    title: 'Welcome to Rostyr',
-				    staff: staff,
-				}
-
-				// tools.makeMail(req, res, staff.email, 'emailStaffCreate', subject, context, function() {
-				tools.makeMail(req, res, 'leon.stirkwang@gmail.com', 'emailStaffCreate', subject, context, function() {
-				    console.log('sent a mail to ' + staff.callSign);
-				});
-
-			    req.flash('message', 'New staff member added successfully');		    
-			    res.redirect('/staff');
-			});
-		    });
-		});
-	    });
-	});
-
     router.route('/staff/:id')
 
 	.post(ensureAuthenticated, ensureUser, function(req, res) {
 
-	    db.Staff.find({ where: { id: req.param('id') }, include: [ db.Position ] }).then(function(staff) {
+	    db.Users.find({ where: { id: req.param('id') }, include: [ db.Position ] }).then(function(staff) {
 
 		if(staff.firstName == req.body.fName && staff.lastName == req.body.lName) {
 		    updateStaff(req, staff, staff.callsign, function() {
@@ -81,24 +343,6 @@ module.exports = function(app, router, passport) {
 
 	    });
 	});
-
-    router.route('/staff/remove/:id')
-
-	.get(ensureAuthenticated, ensureUser, function(req, res) {
-
-	    db.Staff.find(req.param('id')).then(function(staff) {
-		staff.destroy().then(function() {
-	
-		    // if last of position then delete position
-
-		    req.flash('message', 'Staff member removed successfully');
-		    res.redirect('/staff');
-		});
-	    });
-
-	});
-
-
 
 // === //
 // JOB //
@@ -144,26 +388,27 @@ module.exports = function(app, router, passport) {
 
 	.post(ensureAuthenticated, function(req, res) {
 
-            var date = new Date(req.body.year,req.body.month,req.body.day,req.body.time.substring(0,2),req.body.time.substring(2));
-
 	    db.Job.find(req.param('id')).then(function(job) {
-		job.date = date;
-		job.pax = pax;
+		job.date.setHours(req.body.time.substring(0,2));
+		job.date.setMinutes(req.body.time.substring(2));
 
 		// if client, location or event type have changed then must find, remove and replace with new values
 		// if changes are made we need to email out all confirmed and pending staff
 
+		console.log(Object.keys(req.body));
+
 		async.each(Object.keys(req.body), function(key, cb) {
 		    switch (key) {
-		    case client:
-			console.log('client');
-			cb();
-			break;
-		    case location:
+		    case 'location':
 			console.log('location');
 			cb();
 			break;
-		    case eventType:
+		    case 'pax':
+			console.log('pax');
+			job.pax = req.body.pax;
+			cb();
+			break;
+		    case 'eventType':
 			cosole.log('eventType');
 			cb();
 			break;
@@ -174,9 +419,11 @@ module.exports = function(app, router, passport) {
 		});
 
 		job.save().then(function() { 
-		    // something });
+		    req.flash('message', 'Job updated successfully');
+		    res.redirect('/job');
 		}).catch(function(err) {
 		    console.log(err);
+		    res.redirect('/job');
 		});
 
 	    });
@@ -210,25 +457,28 @@ module.exports = function(app, router, passport) {
 
 	    // NEED FUNCTION TO SANITISE "START" INPUT //
 
-	    console.log(req.body.start);
-	    console.log(req.body.number);
-
 	    db.Job.find(req.body.jobId).then(function(job) {
 
 		// get number of bookings
-		for(var i = 0; i < req.body.number; i++) {
 
-		    var start = job.date;
-		    start.setHours(req.body.start.substring(0,2));
-		    start.setMinutes(req.body.start.substring(2));
-		    console.log(start);
+		var i = 0;
 
-		    db.Booking.create({ start: start, position: req.body.position }).then(function(booking) {
-			booking.setJob(job);
-			console.log({ message: 'created new booking for ' + req.body.start });
-			res.redirect('/job');
-		    });
-		}
+		async.whilst(function() { return i < req.body.number; },
+			     function(cb) {
+				 i++;
+				 var start = job.date;
+				 start.setHours(req.body.start.substring(0,2));
+				 start.setMinutes(req.body.start.substring(2));
+
+				 db.Booking.create({ start: start, position: req.body.position }).then(function(booking) {
+				     booking.setJob(job);
+				     console.log({ message: 'created new booking for ' + req.body.start });
+				     cb();
+				 });
+			     }, function(err) {
+				 req.flash('message', 'New booking created successfully');
+				 res.redirect('/job');
+			     });
 	    });
 	})
 
@@ -417,28 +667,9 @@ module.exports = function(app, router, passport) {
 
     app.use('/api', router);
 
-
-
-
     app.get('/', routes.index);
 
-    app.post('/user/create', user.create);
-
-    app.get('/user/verify', user.verify);
-
-    app.route('/user/setup')
-	.get(user.askpass)
-	.post(passport.authenticate('local-setpass', {
-	    successRedirect: '/dash',
-	    failureRedirect: '/login',
-	    failureFlash: true
-	}));
-
-    app.post('/user/update', ensureUser, user.update);
-
-    app.get('/dash', ensureAuthenticated, ensureUser, routes.dash);
-
-    app.get('/account', ensureAuthenticated, ensureUser, routes.account);
+    app.get('/dash', ensureAuthenticated, routes.dash);
     app.get('/job', ensureAuthenticated, ensureUser, routes.job);
     app.get('/staff', ensureAuthenticated, ensureUser, routes.staff);
 
@@ -448,7 +679,8 @@ module.exports = function(app, router, passport) {
 
     app.post('/login', passport.authenticate('local-login', {
 //	successRedirect : '/dash', 
-	successRedirect : '/job',
+//	successRedirect : '/job',
+	successRedirect : '/staff',
 	failureRedirect : '/login', 
 	failureFlash : true 
     }));
@@ -468,8 +700,9 @@ module.exports = function(app, router, passport) {
 	    res.redirect('/login');
 	} else {
 	    db.User.find({ where: { id: req.user.id }, include: [db.Role] }).then(function(user) {
-		if(_.where(user.Roles, { name: 'user' })) { return next(); }
-		res.redirect('/login');
+		if(_.where(user.Roles, { name: 'user' }).length > 0) { 
+		    return next();
+		} else { res.redirect('/login') };
 	    });
 	}
     }
@@ -501,7 +734,7 @@ module.exports = function(app, router, passport) {
 	});
     }
     function genNewCallsign(newStaff, cb) {
-	db.Staff.findAll({ where: { firstName: newStaff.firstName } }).then(function(matchedStaff) {
+	db.User.findAll({ where: { firstName: newStaff.firstName } }).then(function(matchedStaff) {
 
 	    var lastNames = _.pluck(matchedStaff, 'lastName');
 

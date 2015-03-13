@@ -15,42 +15,42 @@
 
     <table class="table table-striped">
 
-<% if(user.Staffs) { %>
+<% if(staff) { %>
       <tbody>
-	<% for(var i=0; i<user.Staffs.length; i++) {%>
+	<% staff.forEach(function(staff) { %>
 
              <tr>
 	       <td>
 		 <div class="col-xs-12">
-		   <form class="form-horizontal" method="post" action="/api/staff/<%= user.Staffs[i].id %>" role="form">
+		   <form class="form-horizontal" method="post" action="/api/staff/<%= staff.id %>" role="form">
 		     <div class="form-group no-margin">
 		       <label class="col-sm-1" for="fName">Name</label>
 		       <div class="col-sm-2 sm-mb">
-			 <input class="form-control" value="<%= user.Staffs[i].firstName %>" name="fName" />
+			 <input class="form-control" value="<%= staff.firstName %>" name="fName" />
 		       </div>
 
 		       <label class="sr-only" for="lName">Last name</label>
 		       <div class="col-sm-3">
-			 <input class="form-control" value="<%= user.Staffs[i].lastName %>" name="lName" />
+			 <input class="form-control" value="<%= staff.lastName %>" name="lName" />
 		       </div>
 
 		       <label class="col-sm-1">Position(s)</label>
 		       <div class="col-sm-5">
-			 <input class="tagsinput" data-role="tagsinput" value="<% for (var j=0; j<user.Staffs[i].Positions.length; j++) { %><%= user.Staffs[i].Positions[j].name %>,<% } %>" name="position" />
+			 <input class="tagsinput" data-role="tagsinput" value="<% staff.Positions.forEach(function(pos) { %><%= pos.name %>,<% }); %>" name="position" />
 		       </div>
 		     </div>
 
 		     <div class="form-group sm-mb">
 		       <label class="col-sm-1" for="email">Email</label>
 		       <div class="col-sm-5">
-			 <input class="form-control" value="<%= user.Staffs[i].email %>" name="email" />
+			 <input class="form-control" value="<%= staff.email %>" name="email" />
 		       </div>
 
 		       <label class="col-sm-1" for="phone">Phone</label>
 		       <div class="col-sm-5">
 			 <div class="input-group">
 			   <span class="input-group-addon">+64</span>
-			   <input class="form-control" value="<%= user.Staffs[i].phone %>" name="phone" />
+			   <input class="form-control" value="<%= staff.phone %>" name="phone" />
 			 </div>
 		       </div>
 		     </div>
@@ -61,7 +61,7 @@
 		       </div>
 
 		       <div class="col-sm-1">
-			 <a href="/api/staff/remove/<%= user.Staffs[i].id %>" class="btn btn-danger btn-block">
+			 <a href="/api/user/remove/<%= staff.id %>" class="btn btn-danger btn-block">
 			   <span class="fui-cross"></span>
 			 </a>
 		       </div>
@@ -72,7 +72,7 @@
 	       </td>
 	     </tr>
 
-	 <% } %>
+	 <% }); %>
       </tbody>
 <% } %>
     </table>
@@ -84,7 +84,7 @@
   <div class="row">
     <div class="col-xs 12">
 
-      <form class="form-horizontal" method="post" action="/api/staff" role="form">
+      <form class="form-horizontal" method="post" action="/api/user" role="form">
         <div class="login-form">
 
           <h5>New staff</h5>
@@ -131,6 +131,8 @@
             </div>
 
           </div>
+
+	  <input type="hidden" value="staff" name="userType" />
 
         </div>
       </form>

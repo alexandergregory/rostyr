@@ -10,199 +10,168 @@
 </div>
 <% } %>
 
-<% if(display) { %>
 <div class="container content-top">
-  <h2>Jobs</h2>
+    <h2>Jobs</h2>
+</div>
 
-<div class="table-responsive">
-<table class="table">
+<div class="container">
 
 <% display.dates.forEach(function(date) { %>
-
-<tr><td><h3><%= humanize.date('l jS F Y', date.jobs[0].date) %></h3></tr></td>
-
-<% date.jobs.forEach(function(job) { %>
-
-<tr><td>
-
-  <table class="table">
-    <thead>
-      <th class="col-xs-2">Client</th>
-      <th class="col-xs-1">Arrival</th>
-      <th class="col-xs-4">Location</th>
-      <th class="col-xs-1">Pax</th>
-      <th class="col-xs-2">Event</th>
-      <th class="col-xs-1"></th>
-      <th class="col-xs-1"></th>
-    </thead>
-    <tbody>
-         <tr>
-	   <form class="form-horizontal" method="post" action="api/jobs/<%= job.id %>" role="form">
-             <td><p><%= job.Client.name%></p></td>
-	     <td><input class="form-control" value="<%= humanize.date('Hi', job.date) %>" name="time" /></td>
-             <td><input class="form-control" value="<%= job.Location.name %>" name="location" /></td>
-             <td><input class="form-control" value="<%= job.pax %>" name="pax" /></td>
-             <td><input class="form-control" value="<%= job.EventType.name %>" name="eventType" /></td>
-	     <td class="text-right">
-               <a href="/api/job/<%= job.id %>?redirect=job" class="btn btn-primary">
-		 <span class="fui-arrow-right"></span>
-               </a>
-             </td>
-	     <td class="text-right">
-               <a href="/api/job/remove/<%= job.id %>?redirect=job" class="btn btn-danger">
-		 <span class="fui-cross"></span>
-               </a>
-             </td>
-	   </form> <!-- JOBS -->
-         </tr>
-    </tbody>
-  </table>
-
-<% if(job.Bookings.length > 0) { %>
-<div class="no-gutter col-xs-10 col-xs-offset-2">
-
-  <form id="job<%= job.id %>" class="form-inline" method="post" action="api/ask" role="form">
-
-  <table class="table table-striped">
-    <thead>
-      <th class="col-xs-1">Start</th>
-      <th class="col-xs-1">No.</th>
-      <th class="col-xs-3">Position</th>
-      <th></th>
-      <th></th>
-      <th></th>
-    </thead>
-    <tbody>
-
-<%
-  // ========== //
-  // UNIQ START //
-  // ========== //
-
-  var start = _.pluck(job.Bookings, 'start');
-  var uniqStart = _.uniq(start);
-
-  for(var j=0; j < uniqStart.length; j++) {
-
-      // ============= //
-      // UNIQ POSITION //
-      // ============= //
-
-      var posObj = _.where(job.Bookings, { start: uniqStart[j] });
-      var pos = _.pluck(posObj, 'position');
-      var uniqPos = _.uniq(pos);
-
-      for(var k=0; k < uniqPos.length; k++) {
-
-          // ======== //
-          // BOOKINGS //
-          // ======== //
-
-          %><tr><%
-          var bookings = _.where(job.Bookings, { start: uniqStart[j], position: uniqPos[k] });
-
-// get total staff pool
-
-	  var posArr = [];
-	  var el = uniqPos[k];
-
-// sort that pos array
-
-          var sortArr = posArr.sort(function(a, b) {
-             return 1 // values 0 or >0 or <0 where >0 sorts b before a and <0 sorts a before b
-          });
-
-          sortArr.forEach(function(ea) {
-	     console.log('sort array');
-             console.log(ea.firstName + ' ' + ea.lastName);
-          });
-
-// slice each allocation from the total date/job pool
-
-	  %><td><% if(k==0) { %><%= humanize.date('g:ia', uniqStart[j]) %><% } %></td><%
-	  %><td><%= bookings.length %></td><%
-	  %><td><%= uniqPos[k] %></td><%
-
-          var mult = Math.floor(bookings.length/3);
-          var mod = bookings.length % 3;
-      
-          if(mod!=0) { var diff = 3-mod; } else { var diff = 0; }
-	  console.log(mult + ' ' + mod + ' ' + diff);
-
-          for(var l=0; l < bookings.length; l++) { 
-
-	  %>
-
-             <td>				   
-	        <div class="form-group no-margin">
-	           <label class="sr-only" for="<%= bookings[l].id %>"><%= bookings[l].id %></label>
-	           <input type="text" class="form-control input-sm" placeholder="Name" 
-		          value=""
-			  name="<%= bookings[l].id %>" />
-	        </div>
-	     </td>
-	  <% 
-
-	  }
-
-          for(var m=0; m<diff; m++) { %><td></td><% }
-
-          %></tr><%
-      }
-
-  }
-%>
-
-    </tbody>
-  </table>
-
-  </form> <!-- ASK -->
-
-</div>
-<% } // if booking exists %>
-
-
-  <form class="form-inline" method="post" action="api/booking/<%= job.id %>" role="form">
-    <div class="no-gutter col-xs-10 col-xs-offset-2">
+  <h3 style="background-color: aliceblue;"><%= humanize.date('l jS F Y', date.jobs[0].date) %></h3>
+  <% date.jobs.forEach(function(job) { %>
+    <div class="table-responsive">
       <table class="table">
 	<thead>
-	  <th>Start</th>
-	  <th>Position</th>
-	  <th>No.</th>
+	  <th class="col-xs-2">Client</th>
+	  <th class="col-xs-1">Arrival</th>
+	  <th class="col-xs-4">Location</th>
+	  <th class="col-xs-1">Pax</th>
+	  <th class="col-xs-2">Event</th>
+	  <th class="col-xs-1"></th>
 	  <th class="col-xs-1"></th>
 	</thead>
+
 	<tbody>
-	  <tr>
-	    <td><div class="form-group"><input type="text" class="form-control" placeholder="24 hour time" name="start"></div></td>
-	    <td><div class="form-group"><input type="text" class="form-control" placeholder="Position" name="position"></div></td>
-	    <td><div class="form-group"><input type="text" class="form-control" placeholder="No." name="number"></div></td>
-	    <input type="hidden" value="<%= job.id %>" name="jobId">
-	    <td class="text-right">
-	      <button type="submit" class="btn btn btn-primary">
-		<span class="fui-plus"></span>
-	      </button>
-	    </td>
-	  </tr>
+          <tr>
+	    <form class="form-horizontal" method="post" action="api/job/<%= job.id %>?redirect=job" role="form">
+	      <td><p><%= job.Client.name %></p></td>
+	      <td><input class="form-control" value="<%= humanize.date('Hi', job.date) %>" name="time" /></td>
+	      <td><input class="form-control" value="<%= job.Location.name %>" name="location" /></td>
+	      <td><input class="form-control" value="<%= job.pax %>" name="pax" /></td>
+	      <td><input class="form-control" value="<%= job.EventType.name %>" name="eventType" /></td>
+	      <td class="text-right">
+		<button type="submit" class="btn btn-primary">
+		  <span class="fui-arrow-right"></span>
+		</button>
+	      </td>
+	      <td class="text-right">
+		<a href="/api/job/remove/<%= job.id %>?redirect=job" class="btn btn-danger">
+		  <span class="fui-cross"></span>
+		</a>
+	      </td>
+	    </form> <!-- JOBS -->
+          </tr>
 	</tbody>
+
       </table>
+
+    <% if(job.Bookings.length > 0) { %>
+    <%
+       var sortedBookings = [];
+       var uniqStart = _.uniq(_.map(_.pluck(job.Bookings, 'start'), function(date) { return humanize.date('Hi', date) }));
+       uniqStart = uniqStart.sort(function(a, b) {
+         if(a > b) { return 1 };
+         if(a < b) { return -1 };
+       });
+       async.each(uniqStart, function(start, cb) {
+
+         var uniqStartObj = _.filter(job.Bookings, function(obj) { return humanize.date('Hi', obj.start) == start; });
+         var uniqPos = _.uniq(_.pluck(uniqStartObj, 'position'));
+
+         async.each(uniqPos, function(pos, cb) {
+
+           var uniqPosObj = _.where(uniqStartObj, { position: pos });
+           sortedBookings.push(uniqPosObj);
+           cb();
+
+         }, function(err) {
+           if(err) { console.log(err) }
+           cb();
+         });
+       }, function(err) {
+         if(err) { console.log(err) } else { console.log('success') }
+         console.log(JSON.stringify(sortedBookings, undefined, 2));
+       })
+    %>
+    <form id="job<%= job.id %>" class="form-inline" method="post" action="api/ask" role="form">
+      <div class="no-gutter col-xs-10 col-xs-offset-2">
+	<table class="table table-striped">
+	  <thead>
+	    <th class="col-xs-1">Start</th>
+	    <th class="col-xs-1">No.</th>
+	    <th class="col-xs-2">Position</th>
+	    <th class="col-xs-2"></th>
+	    <th class="col-xs-2"></th>
+	    <th class="col-xs-2"></th>
+	  </thead>
+	  <tbody>
+
+          <% sortedBookings.forEach(function(line) { %>
+	  <% 
+	     var mult = Math.floor((line.length-1)/3);
+	     var mod = line.length % 3;
+	     if(mod!=0) { var diff = 3-mod; } else { var diff = 0; }
+	   %>
+	    <tr>
+	      <td><%= humanize.date('Hi', line[0].start) %></td>
+	      <td><%= line.length %></td>
+	      <td><%= line[0].position %></td>
+
+	      <% for(var i=0; i<line.length; i++) { %>
+	        <td>
+		  <div class="form-group no-margin">
+		    <label class="sr-only" for="<%= line[i].id %>"><%= line[i].id %></label>
+		    <input type="text" class="form-control input-sm" placeholder="Name" 
+			   value=""
+			   name="<%= line[i].id %>" />
+		  </div>
+		</td>
+		<% if(mult>0 && (i+1)%3==0) { %>
+	    </tr>
+	    <tr>
+	      <td></td>
+	      <td></td>
+	      <td></td>
+	        <% } %>
+	    
+	      <% } %>
+	      <% for(var i=0; i<diff; i++) { %>
+	        <td></td>
+	      <% } %>
+	    </tr>
+	  <% }); %>
+
+	  </tbody>
+	</table>
+      </div>
+    </form>
+    <% } %>
+
+      <form class="form-inline" method="post" action="api/booking/<%= job.id %>" role="form">
+	<div class="no-gutter col-xs-10 col-xs-offset-2">
+	  <table class="table">
+	    <thead>
+	      <th>Start</th>
+	      <th>Position</th>
+	      <th>No.</th>
+	      <th class="col-xs-1"></th>
+	    </thead>
+	    <tbody>
+	      <tr>
+		<td><div class="form-group"><input type="text" class="form-control" placeholder="24 hour time" name="start"></div></td>
+		<td><div class="form-group"><input type="text" class="form-control" placeholder="Position" name="position"></div></td>
+		<td><div class="form-group"><input type="text" class="form-control" placeholder="No." name="number"></div></td>
+		<input type="hidden" value="<%= job.id %>" name="jobId">
+		<td class="text-right">
+		  <button type="submit" class="btn btn-primary">
+		    <span class="fui-plus"></span>
+		  </button>
+		</td>
+	      </tr>
+	    </tbody>
+	  </table>
+	</div>
+      </form> <!-- BOOKING -->
+
+    <div class="col-sm-6 col-sm-offset-3">
+      <button type="submit" class="btn btn-primary btn-block lg-mb" form="job<%= job.id %>">Roster</button>
     </div>
-  </form> <!-- BOOKING -->
 
-  <div class="col-sm-8 col-sm-offset-2">
-    <button type="submit" class="btn btn-primary btn-block lg-mb" form="job<%= job.id %>">Roster</button>
-  </div>
+    </div>
+  <% }); %>
+<% }); %>
 
-</td></tr>
-<% }); // for each job %>
-
-<% }); // for each date %>
-
-</table>
 </div>
-</div>
-<% } // if jobs exist %>
-
-
 
 <!-- NEW JOB -->
 

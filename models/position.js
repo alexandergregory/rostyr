@@ -7,7 +7,6 @@ module.exports = function(sequelize, DataTypes) {
   }, {
     associate: function(models) {
 	Position.hasMany(models.User);
-	Position.hasMany(models.Staff);
     }
   })
 

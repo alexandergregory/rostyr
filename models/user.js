@@ -10,15 +10,25 @@ module.exports = function(sequelize, DataTypes) {
 	    type: DataTypes.STRING,
 	    allowNull: false,
 	},
+	callsign: {
+	    type: DataTypes.STRING,
+	},
+	phone: {
+	    type: DataTypes.STRING,
+	},
 	email: { 
 	    type: DataTypes.STRING, 
 	    unique: true,
 	    allowNull: false,
 	    validate: { isEmail: { msg: 'Please enter a valid email address' } },
 	},
+	company: {
+	    type: DataTypes.STRING,
+	},
 	token: {
 	    type: DataTypes.STRING,
 	    unique: true,
+
 	    allowNull: false,
 	},
 	pass: {
@@ -41,7 +51,7 @@ module.exports = function(sequelize, DataTypes) {
 	associate: function(models) {
 	    User.hasMany(models.Role);
 	    User.hasMany(models.Job);
-	    User.hasMany(models.Staff);
+	    User.hasMany(models.User, { as: 'Staff' });
 	    User.hasMany(models.Position);
 	    User.hasMany(models.Location);
 	    User.hasMany(models.EventType);
